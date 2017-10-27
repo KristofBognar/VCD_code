@@ -1,0 +1,18 @@
+% O3 AMF
+% Latitude (°)                    :  80.05
+% Longitude (°)                   : -86.42
+% Day number                      :  62.0
+% Wavelength (nm)                 : 505.00
+% Albedo                          : 0.79
+% Altitude of the station (km)    : 0.60
+% First column: SZA (°), second column: O3 SCD (molec/cm2), third column: O3 AMF
+  89.97 0.4107E+19  12.861
+  90.14 0.8188E+19  13.305
+  90.32 0.1322E+20  13.827
+  90.52 0.1875E+20  14.427
+  90.73 0.2478E+20  15.092
+  90.97 0.3125E+20  15.853
+  91.21 0.3794E+20  16.647
+  91.45 0.4409E+20  17.425
+  91.69 0.5034E+20  18.224
+  91.92 0.5613E+20  18.993
