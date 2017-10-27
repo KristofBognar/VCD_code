@@ -1,0 +1,3 @@
+function [rcd_S, avg_vcd] = add_langley_vcd(rcd_S, avg_vcd)
+
+TF = 

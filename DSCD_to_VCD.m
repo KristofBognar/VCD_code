@@ -29,6 +29,8 @@ function [VCD_table,VCD_table2, dscd_S, dscd_S2, rcd_S, rcd_S2, avg_vcd, avg_vcd
 %        14. sigma_mean_vcd: mean systematic error in VCDs
 %        15. std_vcd: standard deviation of VCDs
 %        16. sigma_w_vcd: weighted mean error of VCDs
+%        17. langley_vcd: slop of the langley fit
+%        18. langley_vcd_err: err in slop of the langley fit
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -122,6 +124,9 @@ else
     disp('Warning: wrong set up in input file!');
     disp('Please double check input settings for this code!');
 end
+
+[avg_vcd] = add_langley_vcd(rcd_S, avg_vcd); % we include the slop in langley fit as VCD
+[avg_vcd2] = add_langley_vcd(rcd_S2, avg_vcd2); % we include the slop in langley fit as VCD
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% 5. dispaly VCDs and print data %%%%%%%
@@ -134,13 +139,15 @@ end
 VCD_table = struct2table(avg_vcd); % convert VCD output (structure) to table format
 N = size(VCD_table);
 VCD_table.year = repmat(year,[N(1),1]);
-VCD_table = [VCD_table(:,16),VCD_table(:,1:15)];
+%VCD_table = [VCD_table(:,16),VCD_table(:,1:15)];% this is just move year to the 1st column
+VCD_table = [VCD_table(:,18),VCD_table(:,1:17)];% this is just move year to the 1st column
 
 try 
     VCD_table2 = struct2table(avg_vcd2); % convert VCD output (structure) to table format
     N = size(VCD_table2);
     VCD_table2.year = repmat(year,[N(1),1]);
-    VCD_table2 = [VCD_table2(:,16),VCD_table2(:,1:15)];
+    %VCD_table2 = [VCD_table2(:,16),VCD_table2(:,1:15)];% this is just move year to the 1st column
+    VCD_table = [VCD_table(:,18),VCD_table(:,1:17)];% this is just move year to the 1st column
 catch
     disp('can not perform cloud filter working, check if this is used with CF package ... ');
 end
