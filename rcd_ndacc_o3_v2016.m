@@ -1,5 +1,5 @@
 function [rcd_vec, amf] = ... 
-    rcd_ndacc_o3_v2016(year, day, ampm, dscd_S,sza_range, o3_flag, tag,code_path,O3_AMF_version, filter_tag)
+    rcd_ndacc_o3_v2016(year, day, ampm, dscd_S,sza_range, o3_flag, tag,code_path,O3_AMF_version, filter_tag, lambda)
 
 %  This function calculates the RCDs for ozone for a given day, SZA range, 
 %  and dscd_vecset.
@@ -51,13 +51,11 @@ function [rcd_vec, amf] = ...
 %       amf : AMF corresponding with each index
 
 
-
+% / works for paths on Windows as well
 if O3_AMF_version == 1
-    %amf_dir = 'F:\Work\VCD\o3_amf_lut_v1_0\';
-    amf_dir = [code_path '\AMF_LUT\o3_amf_lut_v1_0\'];
+    amf_dir = [code_path '/AMF_LUT/o3_amf_lut_v1_0/'];
 elseif O3_AMF_version == 2
-    %amf_dir = 'F:\Work\NDACC\2012\o3_amf_lut_v2_0\o3_amf_lut_v2_0\';
-    amf_dir = [code_path '\AMF_LUT\o3_amf_lut_v2_0\'];
+    amf_dir = [code_path '/AMF_LUT/o3_amf_lut_v2_0/'];
 end
 
 rcd_vec = [];
@@ -75,31 +73,44 @@ if isempty(ind)
     return
 end
 
-%if isnan(sum(dscd_S.o3(ind)))
-if isnan(sum(dscd_S.mol_dscd(ind))) % modified by Xiaoyi
+if o3_flag==1
+    condition=isnan(sum(dscd_S.o3(ind)));
+elseif o3_flag==2
+    condition=isnan(sum(dscd_S.mol_dscd(ind)));
+end
+    
+if condition
     amf = ones(length(ind),1) * NaN;
-    disp(['No input ozone SCDs for day ' num2str(day) ampm_str])
+    disp(['No input ozone VCDs for day ' num2str(day) ampm_str])
     return
 end
 disp(['Calculating RCD for day: ' num2str(day) ' ' ampm_str])
 
 % Make amf output file name
-output_file_nm = ['AMF/amf_o3_' tag '_' num2str(year) '_'...
-    num2str(day) '_' ampm_str '_505nm.dat'];
+output_file_nm = ['AMF/amf_o3_v' num2str(O3_AMF_version) '_' tag '_'...
+    num2str(year) '_' num2str(day) '_' ampm_str '_' num2str(lambda) 'nm_.dat'];
 
 % print the ozone data to the sza input file
 L = length(dscd_S.day(ind));
 fid = fopen([amf_dir 'sza_file_amf.dat'], 'w');
-fprintf(fid, '%2.2f\t%2.2f\n', [dscd_S.sza(ind) dscd_S.o3(ind)]'); % this is when we use interpreted ozonesonde in AMF LUT
-%fprintf(fid, '%2.2f\t%2.2f\n', [dscd_S.sza(ind) dscd_S.mol_dscd(ind)]');% modified by Xiaoyi --> this is when we use only dSCDs as input for AMF LUT
+
+% Cristen: use total columns from sonde data as input
+if o3_flag==1
+    fprintf(fid, '%2.2f\t%2.2f\n', [dscd_S.sza(ind) dscd_S.o3(ind)]');
+% Xiaoyi: use dSCDs as input 
+elseif o3_flag==2, 
+    fprintf(fid, '%2.2f\t%2.2f\n', [dscd_S.sza(ind) dscd_S.mol_dscd(ind)]'); 
+end
+
 fclose(fid);
 
 % now print up to input o3 file
 fid = fopen([amf_dir 'input_file_o3_amf.dat'], 'w');
+
 fprintf(fid, '%s\n', '*Input file for O3 AMF interpolation program');
 fprintf(fid, '%s\n', '*');
 fprintf(fid, '%s\n', '*Wavelength (440-580 nm) ?');
-fprintf(fid, '%s\n', '505');
+fprintf(fid, '%s\n', num2str(lambda));
 fprintf(fid, '%s\n', '*Day number (1-365 or 366 for leap year) ?');
 fprintf(fid, '%d\n', day);
 fprintf(fid, '%s\n', '*Latitude (-90 (SH) to +90 (NH)) ?');
@@ -121,21 +132,38 @@ fclose(fid);
 % change to amf directory to excecute interpolation scheme
 cur_dir = pwd;
 cd(amf_dir);
-if O3_AMF_version == 1
-    executable = [amf_dir 'o3_amf_interpolation_dos.exe'];
-elseif O3_AMF_version == 2
-    executable = [amf_dir 'o3_amf_interpolation_v2_0_dos.exe'];
+
+% check operating system and run LUT executable accordingly
+if ispc
+    if O3_AMF_version == 1
+        executable = [amf_dir 'o3_amf_interpolation_dos.exe'];
+    elseif O3_AMF_version == 2
+        executable = [amf_dir 'o3_amf_interpolation_v2_0_dos.exe'];
+    end
+elseif isunix
+    if O3_AMF_version == 1
+        executable = ['wine ' amf_dir 'o3_amf_interpolation_dos.exe'];
+    elseif O3_AMF_version == 2
+        executable = ['wine ' amf_dir 'o3_amf_interpolation_v2_0_dos.exe'];
+    end
 end
 
-[status, result] = dos(executable, '-echo');
-
+try
+    [status, result] = dos(executable, '-echo');
+catch
+    if isunix
+        error('Please install Wine or another windows emulator');
+    elseif ispc
+        error('Could not run LUT executable')
+    end
+end
 % copy output to desired file-name.  Read output sza, o3, and AMF
 cd(cur_dir);
 %copyfile([amf_dir 'o3_amf_output.dat'], output_file_nm);
-copyfile([amf_dir 'o3_amf_output.dat'], 'ndacc_o3_amf_output.dat');
+copyfile([amf_dir 'o3_amf_output.dat'], output_file_nm);
 
 %[tmp1_sza, tmp2_o3, amf] = textread(output_file_nm, '%f%f%f', 'headerlines',8);
-[tmp1_sza, tmp2_o3, amf] = textread('ndacc_o3_amf_output.dat', '%f%f%f', 'headerlines',8);
+[~, ~, amf] = textread(output_file_nm, '%f%f%f', 'headerlines',8);
 
 % make plots and get langley dscd_vec for morning and afternoon
 close all;
