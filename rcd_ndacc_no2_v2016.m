@@ -43,12 +43,11 @@ end
 
 
 % change this is running on a new computer
+% / works for paths on Windows as well
 if NO2_AMF_version == 1
-    %amf_dir = 'F:\Work\VCD\no2_amf_lut_v0_1\'; %this is the old version of AMF
-    amf_dir = [code_path '\AMF_LUT\no2_amf_lut_v0_1\'];
+    amf_dir = [code_path '/AMF_LUT/no2_amf_lut_v0_1/'];
 elseif NO2_AMF_version ==2
-    %amf_dir = 'F:\Work\NDACC\2012\no2_amf_lut_v1_0\no2_amf_lut_v1_0\';
-    amf_dir = [code_path '\AMF_LUT\no2_amf_lut_v1_0\'];
+    amf_dir = [code_path '/AMF_LUT/no2_amf_lut_v1_0/'];
 end
 
 rcd_vec = [];
@@ -68,7 +67,8 @@ end
 disp(['Calculating RCD for day: ' num2str(day) ' ' ampm_str])
 
 % and make the amf output file name and the directory name for the amfs
-out_file = ['AMF/amf_no2_' tag '_' num2str(year) '_' num2str(day) '_' ampm_str '.dat'];% the working folder should have /AMF sub folder, Xiaoyi
+out_file = ['AMF/amf_no2_v' num2str(NO2_AMF_version) '_' tag '_'...
+    num2str(year) '_' num2str(day) '_' ampm_str '.dat'];% the working folder should have /AMF sub folder, Xiaoyi
 
 
 
@@ -78,7 +78,7 @@ fprintf(fid, '%u\t%2.4f\t%2.4f\n',...
     [year*ones(length(ind),1) dscd_S.fd(ind) dscd_S.sza(ind)]');
 fclose(fid);
 
-% now print up to input o3 file
+% now print up to input no2 file
 fid = fopen([amf_dir 'input_file_no2_amf.dat'], 'w');
 fprintf(fid, '%s\n', '*Input file for NO2 AMF interpolation program');
 fprintf(fid, '%s\n', '*');
@@ -101,11 +101,21 @@ fclose(fid);
 cur_dir = pwd;
 cd(amf_dir);
 
-if NO2_AMF_version == 1
-    executable = [amf_dir 'no2_amf_interpolation_dos.exe'];% for the old version of AMF LUT
-elseif NO2_AMF_version == 2
-    executable = [amf_dir 'no2_amf_interpolation_v1_0.exe'];
+% check operating system and run LUT executable accordingly
+if ispc
+    if NO2_AMF_version == 1
+        executable = [amf_dir 'no2_amf_interpolation_dos.exe'];% for the old version of AMF LUT
+    elseif NO2_AMF_version == 2
+        executable = [amf_dir 'no2_amf_interpolation_v1_0.exe'];
+    end
+elseif isunix
+    if NO2_AMF_version == 1
+        executable = ['wine ' amf_dir 'no2_amf_interpolation_dos.exe'];% for the old version of AMF LUT
+    elseif NO2_AMF_version == 2
+        executable = ['wine ' amf_dir 'no2_amf_interpolation_v1_0.exe'];
+    end
 end
+    
 [status, result] = dos(executable, '-echo');
 
 % copy output to desired file-name.  Read output sza, o3, and AMF
@@ -113,11 +123,11 @@ cd(cur_dir);
 %fid=fopen(out_file,'w');
 %fclose(fid);
 
-copyfile([amf_dir 'no2_amf_output.dat'], 'ndacc_no2_amf_output.dat');
+copyfile([amf_dir 'no2_amf_output.dat'], out_file);
 %rename(f,'out_file.dat',out_file);
 
 
-[tmp_year, tmp_day, tmp_sza, amf] = textread('ndacc_no2_amf_output.dat', '%f%f%f%f', 'headerlines',5);
+[tmp_year, tmp_day, tmp_sza, amf] = textread(out_file, '%f%f%f%f', 'headerlines',5);
 
 
 % make plots and get langley dscd_vec for morning and afternoon
