@@ -107,11 +107,13 @@ cd(working_dir);
 if trace_gas == 1 && instrument == 1
     filter_tag = '';
     [dscd_S, rcd_S, avg_vcd] = get_ozone_vcds_v2016(dscd_S, sonde, 'u1',sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
+    [avg_vcd,rcd_S] = assign_refspec_time_to_avgvcd(dscd_S,avg_vcd,rcd_S);% this will assgin the ref spec time and sza to rcd_S and avg_vcd
     disp('Triditional Langley fits finished ... wait for 120 s ... ');pause(120);
-    
+   
     try 
         filter_tag = 'nocloud';
         [dscd_S2, rcd_S2, avg_vcd2] = get_ozone_vcds_v2017(dscd_S, sonde, 'u1',sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
+        [avg_vcd2,rcd_S2] = assign_refspec_time_to_avgvcd(dscd_S2,avg_vcd2,rcd_S2);% this will assgin the ref spec time and sza to rcd_S and avg_vcd
         disp('Cloud-screened Langley fits finished ... wait for 120 s ... ');pause(120);
     catch 
         disp('can not perform cloud filter working, check if this is used with CF package ... ');
