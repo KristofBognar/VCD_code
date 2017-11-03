@@ -56,8 +56,11 @@ m_err2 = abs(bint(2,2) - b(2));
 % end
 m_err = mean([m_err1, m_err2]);
 
-m = [bint(2,1), m_err];
-Y_int = [bint(1,1), Y_err];
+%m = [bint(2,1), m_err]; % this is original code from Cristen. should not
+%use bint(2,1), which is just the lower 95% bound of the slop
+%Y_int = [bint(1,1), Y_err]; % this is also from Cristen's original code
+m = [b(2), m_err];
+Y_int = [b(1), Y_err];
 
 X_axis = 1:length(X);
 if fig_flag == 1,

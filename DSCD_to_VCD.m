@@ -99,6 +99,7 @@ elseif trace_gas == 2
         [dscd_S, qdoas_filt, qdoas_raw] = read_QDOAS_v2016(QDOAS_data_file,col_no2_p0, filt_good,1,save_fig,working_dir);
     end
 end
+dscd_S = time_from_SZA_dscd_S(instrument, dscd_S); % this one will add time for the ref spec. 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% 4. convert Ozone DSCDs to VCDs %%%%%
@@ -138,16 +139,20 @@ end
 
 VCD_table = struct2table(avg_vcd); % convert VCD output (structure) to table format
 N = size(VCD_table);
-VCD_table.year = repmat(year,[N(1),1]);
+%VCD_table.year = repmat(year,[N(1),1]);
+year_table = table(repmat(year,[N(1),1]),'VariableNames',{'year'});
 %VCD_table = [VCD_table(:,16),VCD_table(:,1:15)];% this is just move year to the 1st column
-VCD_table = [VCD_table(:,18),VCD_table(:,1:17)];% this is just move year to the 1st column
+%VCD_table = [VCD_table(:,18),VCD_table(:,1:17)];% this is just move year to the 1st column
+VCD_table = [year_table,VCD_table];
 
 try 
     VCD_table2 = struct2table(avg_vcd2); % convert VCD output (structure) to table format
     N = size(VCD_table2);
-    VCD_table2.year = repmat(year,[N(1),1]);
+    %VCD_table2.year = repmat(year,[N(1),1]);
+    year_table2 = table(repmat(year,[N(1),1]),'VariableNames',{'year'});
     %VCD_table2 = [VCD_table2(:,16),VCD_table2(:,1:15)];% this is just move year to the 1st column
-    VCD_table = [VCD_table(:,18),VCD_table(:,1:17)];% this is just move year to the 1st column
+    %VCD_table = [VCD_table(:,18),VCD_table(:,1:17)];% this is just move year to the 1st column
+    VCD_table2 = [year_table2,VCD_table2];
 catch
     disp('can not perform cloud filter working, check if this is used with CF package ... ');
 end
