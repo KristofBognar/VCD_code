@@ -17,9 +17,9 @@ function [scd,scd_err] = calc_scds_o3(dscd_S, daily_rcd)
 % create a txt log to save who the uncertainty was calculated
 fid = fopen('uncertainty_calculation_log.txt','a+');
 
-fprintf(fid, '\n %s \n', 'Detailed uncertainty calculation for scds can be found in "calc_scds_o3"');
+fprintf(fid, '\r\n%s \r\n', 'Detailed uncertainty calculation for scds can be found in "calc_scds_o3"');
 t = datestr(datetime('now'));
-fprintf(fid, '%s : \n', t);
+fprintf(fid, '%s : \r\n', t);
 
 L = length(dscd_S.day);
 scd = NaN * ones(L,1);
@@ -40,32 +40,34 @@ if (A == 1)
         scd_sys_err =sqrt( (0.034).^2 + (3*dscd_S.err ./ scd).^2 + ((dscd_S.x * 1e17)./dscd_S.mol_dscd).^2 ).*scd;        
         loginfo = 'SCD sys err was calculated with err from x xs';
         disp(loginfo);
-        fprintf(fid, '%s \n', loginfo);
+        fprintf(fid, '%s \r\n', loginfo);
     else
         loginfo = 'Warning: We found dscd_S.x in dscd_S structure, but it is empty!!!';
         disp(loginfo);
-        fprintf(fid, '%s \n', loginfo);
+        fprintf(fid, '%s \r\n', loginfo);
         
         scd_sys_err =sqrt( (0.034).^2 + (3*dscd_S.err ./ scd).^2).*scd;
         loginfo = 'SCD sys err was calculated without err from x xs';
         disp(loginfo);
-        fprintf(fid, '%s \n', loginfo);
+        fprintf(fid, '%s \r\n', loginfo);
     end
 elseif A == 0
     %scd_sys_err =sqrt( (0.02).^2 + (3*dscd_S.err ./ scd).^2).*scd;
     scd_sys_err =sqrt( (0.034).^2 + (3*dscd_S.err ./ scd).^2).*scd;
     loginfo = 'SCD sys err was calculated without err from x xs'
     disp(loginfo);
-    fprintf(fid, '%s \n', loginfo);
+    fprintf(fid, '%s \r\n', loginfo);
 end
 if ~isempty(scd_sys_err)
     scd_err = sqrt(rcd_err.^2 + scd_sys_err.^2);
     loginfo = 'SCD err was calculated with rcd_err and scd_sys_err';
     disp(loginfo);
-    fprintf(fid, '%s \n', loginfo);
+    fprintf(fid, '%s \r\n', loginfo);
 else
     scd_err = rcd_err;
     loginfo = 'SCD err was calculated with only rcd_err (no scd_sys_err)';
     disp(loginfo);
-    fprintf(fid, '%s \n', loginfo);
+    fprintf(fid, '%s \r\n', loginfo);
 end
+
+fclose(fid);
