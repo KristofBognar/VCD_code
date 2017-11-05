@@ -55,7 +55,7 @@ working_dir = pwd; % record current working dir
 mkdir('AMF');% make folder to save all AMF outputs from LUT
 cd(code_path);
 cd ..
-code_path = [pwd '/'];% this should be the path for LUT folder!
+code_path = [pwd];% this should be the path for LUT folder!
 cd(working_dir);% go back to original working dir
 
 % / works for paths on Windows as well
