@@ -104,6 +104,8 @@ dscd_S = time_from_SZA_dscd_S(instrument, dscd_S); % this one will add time for 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% 4. convert Ozone DSCDs to VCDs %%%%%
 cd(working_dir);
+if ~exist('AMF', 'dir'), mkdir('AMF'); end
+
 if trace_gas == 1 && instrument == 1
     filter_tag = '';
     [dscd_S, rcd_S, avg_vcd] = get_ozone_vcds_v2016(dscd_S, sonde, 'u1',sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
