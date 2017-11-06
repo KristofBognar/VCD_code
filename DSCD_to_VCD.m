@@ -1,4 +1,4 @@
-function [VCD_table,VCD_table2, dscd_S, dscd_S2, rcd_S, rcd_S2, avg_vcd, avg_vcd2, qdoas_filt] = DSCD_to_VCD(year,code_path,plot_path,save_fig,QDOAS_data_dir,QDOAS_data_file,sonde)
+function [VCD_table, dscd_S, rcd_S, avg_vcd, qdoas_filt, VCD_table2, dscd_S2, rcd_S2, avg_vcd2] = DSCD_to_VCD(year,code_path,plot_path,save_fig,QDOAS_data_dir,QDOAS_data_file,sonde)
 % this is a function package to convert QDOAS output (DSCD) to NDACC required VCD
 % writen by Xiaoyi Zhao 18/04/2016
 
