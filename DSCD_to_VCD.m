@@ -34,7 +34,65 @@ function [VCD_table, dscd_S, rcd_S, avg_vcd, qdoas_filt, VCD_table2, dscd_S2, rc
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%% 1. input file %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%% 0. input options %%%%%%%%%%%%%%%%%%%%%%%%
+
+% check whether code is called by CF package (all inputs given), or as a
+% standalone function (no input given)
+if nargin==0
+    % if called as standalone function, set input parameters here
+    
+    % only run VCD code once
+    CF_run=false;
+    
+    % Change the current folder to the folder of this m-file.
+    if(~isdeployed)
+      cd(fileparts(which(mfilename)));
+    end    
+    
+    % read input file
+    input_table = read_input_file_VCD();
+    
+    % assign year
+    year=str2double(input_table.year);
+    
+    % assign trace gas number
+    trace_gas=input_table.tg;
+    
+    % assign instrument number
+    if strcmp(input_table.instrument,'UT-GBS')
+        instrument=1;
+    elseif strcmp(input_table.instrument,'PEARL-GBS')
+        instrument=2;
+    end
+    
+    code_path=input_table.VCD_code_path;
+    plot_path=input_table.plot_path;
+    QDOAS_data_file=input_table.data_input;
+    load(input_table.data_sonde);
+    save_fig=input_table.save_fig;
+    
+    % check if input file is a .mat file (table)
+    if isempty(strfind(QDOAS_data_file,'.mat'))
+        error('QDOAS data must be in matlab table format');
+    end
+
+    
+elseif nargin~=7
+    error('Need 7 input variables');
+else
+    CF_run=true;
+
+    % trace gas type
+    trace_gas = 1; % 1 = ozone, 2 = NO2
+
+    % instrument
+    instrument = 1; % 1 = UT-GBS, 2 = PEARL-GBS
+    
+end
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%% 1. input variables %%%%%%%%%%%%%%%%%%%%%%%%
 % the place where you have the VCD code package
 %VCD_code_path = 'F:\Work\VCD\VCD_code\VCD_code_2017';
 %addpath(code_path);
@@ -43,8 +101,13 @@ function [VCD_table, dscd_S, rcd_S, avg_vcd, qdoas_filt, VCD_table2, dscd_S2, rc
 %working_dir = 'F:\Work\GBS\UT_GBS\Eureka2015\O3_reprocess';
 %working_dir = 'F:\Work\GBS\UT_GBS\Eureka2015\NO2_reprocess';
 %working_dir = 'H:\work\Eureka\GBS\CI\2011\UTGBS\VCD3';
-working_dir = strcat(plot_path, 'VCD');
-mkdir(working_dir);
+if CF_run 
+    working_dir = strcat(plot_path, 'VCD');
+else
+    working_dir = plot_path;
+end
+
+if ~exist(working_dir, 'dir'), mkdir(working_dir); end
 
 % the place you have the QDOAS output data
 %QDOAS_data_dir = 'F:\Work\QDOAS\Output\good\2015';
@@ -56,12 +119,6 @@ mkdir(working_dir);
 %QDOAS_data_file = 'u1_2011_cal_CI_allflags.mat'; % CI&smooth flag SZA<85 
 %QDOAS_data_file = 'u1_2011_cal_CIflag85_smoothflag92.mat'; % CI flag SZA<85, smooth flag <92 
 
-
-% trace gas type
-trace_gas = 1; % 1 = ozone, 2 = NO2
-
-% instrument
-instrument = 1; % 1 = UT-GBS, 2 = PEARL-GBS
 
 % Solar Zenith Angle Range for VCD calculation (please reference the guide line from NDACC manual)
 sza_range_ozone = [86,91]; % for example, SZA from 86 to 90 degree
@@ -88,57 +145,83 @@ lambda_no2_UV = 365;% for PEARL-GBS in UV
 %%%%%%% 3. read in QDOAS data %%%%%%%
 cd(code_path);
 load('input_sample_2017_no_sonde.mat'); % use the default structure of QDOAS output
-cd(QDOAS_data_dir);
-if trace_gas == 1 % we ONLY retrieve ozone from UT-GBS Vis data! (follow NDACC recommendation)
-    [dscd_S, qdoas_filt, qdoas_raw, col] = read_QDOAS_v2017(QDOAS_data_file, col_o3_3, filt_good,3,save_fig,working_dir);
-    %[dscd_S, qdoas_filt, qdoas_raw] = read_QDOAS_v2016(QDOAS_data_file, col_o3_3, filt_good,1,save_fig,working_dir);
-elseif trace_gas == 2
-    if instrument == 1 % we retrieve NO2 from UT-GBS Vis data (follow NDACC recommendation)
-        [dscd_S, qdoas_filt, qdoas_raw] = read_QDOAS_v2016(QDOAS_data_file,col_no2_3, filt_good,1,save_fig,working_dir);
-    elseif instrument == 2 % we retrieve NO2 from PEARL-GBS UV data
-        [dscd_S, qdoas_filt, qdoas_raw] = read_QDOAS_v2016(QDOAS_data_file,col_no2_p0, filt_good,1,save_fig,working_dir);
-    end
-end
+if CF_run, cd(QDOAS_data_dir); end
+% if trace_gas == 1 % we ONLY retrieve ozone from UT-GBS Vis data! (follow NDACC recommendation)
+    
+
+% trace gas is selected in read_QDOAS_v2017 when reading from table input
+[dscd_S, qdoas_filt, qdoas_raw, col] = read_QDOAS_v2017(QDOAS_data_file, col_o3_3, filt_good,3,save_fig,working_dir, trace_gas, CF_run);
+    
+
+%[dscd_S, qdoas_filt, qdoas_raw] = read_QDOAS_v2016(QDOAS_data_file, col_o3_3, filt_good,1,save_fig,working_dir);
+
+% elseif trace_gas == 2
+%     if instrument == 1 % we retrieve NO2 from UT-GBS Vis data (follow NDACC recommendation)
+%         [dscd_S, qdoas_filt, qdoas_raw] = read_QDOAS_v2016(QDOAS_data_file,col_no2_3, filt_good,1,save_fig,working_dir);
+%     elseif instrument == 2 % we retrieve NO2 from PEARL-GBS UV data
+%         [dscd_S, qdoas_filt, qdoas_raw] = read_QDOAS_v2016(QDOAS_data_file,col_no2_p0, filt_good,1,save_fig,working_dir);
+%     end
+% end
+
 dscd_S = time_from_SZA_dscd_S(instrument, dscd_S); % this one will add time for the ref spec. 
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% 4. convert Ozone DSCDs to VCDs %%%%%
 cd(working_dir);
 if ~exist('AMF', 'dir'), mkdir('AMF'); end
 
-if trace_gas == 1 && instrument == 1
+if instrument==1 
+    if trace_gas==1 || trace_gas==2
+        instr_str='u1';
+    elseif trace_gas==3
+        instr_str='u0';
+    end
+elseif instrument==2
+    if trace_gas==1 || trace_gas==2
+        instr_str='p1';
+    elseif trace_gas==3
+        instr_str='p0';
+    end
+end    
+    
+if trace_gas == 1
     filter_tag = '';
-    [dscd_S, rcd_S, avg_vcd] = get_ozone_vcds_v2016(dscd_S, sonde, 'u1',sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
+    [dscd_S, rcd_S, avg_vcd] = get_ozone_vcds_v2016(dscd_S, sonde, instr_str, sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
     [avg_vcd,rcd_S] = assign_refspec_time_to_avgvcd(dscd_S,avg_vcd,rcd_S);% this will assgin the ref spec time and sza to rcd_S and avg_vcd
-    disp('Triditional Langley fits finished ... wait for 120 s ... ');pause(120);
    
-    try 
+    if CF_run
+        disp('Traditional Langley fits finished ... wait for 120 s ... ');pause(120);
+        
         filter_tag = 'nocloud';
-        [dscd_S2, rcd_S2, avg_vcd2] = get_ozone_vcds_v2017(dscd_S, sonde, 'u1',sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
+        [dscd_S2, rcd_S2, avg_vcd2] = get_ozone_vcds_v2017(dscd_S, sonde,instr_str,sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
         [avg_vcd2,rcd_S2] = assign_refspec_time_to_avgvcd(dscd_S2,avg_vcd2,rcd_S2);% this will assgin the ref spec time and sza to rcd_S and avg_vcd
         disp('Cloud-screened Langley fits finished ... wait for 120 s ... ');pause(120);
-    catch 
-        disp('can not perform cloud filter working, check if this is used with CF package ... ');
     end
     
-elseif trace_gas == 2 && instrument == 1
-    [dscd_S, rcd_S, avg_vcd] = get_no2_vcds_v2016(dscd_S, lambda_no2, 'u1', sza_range_no2, save_fig,working_dir,code_path);
-elseif trace_gas == 2 && instrument == 2
-    [dscd_S, rcd_S, avg_vcd] = get_no2_vcds_v2016(dscd_S, lambda_no2_UV, 'p0', sza_range_no2, save_fig,working_dir,code_path);
+elseif trace_gas == 2
+    filter_tag = '';
+    [dscd_S, rcd_S, avg_vcd] = get_no2_vcds_v2016(dscd_S, lambda_no2, instr_str, sza_range_no2, save_fig,working_dir,code_path,filter_tag);
+elseif trace_gas == 3
+    filter_tag = '';
+    [dscd_S, rcd_S, avg_vcd] = get_no2_vcds_v2016(dscd_S, lambda_no2_UV, instr_str, sza_range_no2, save_fig,working_dir,code_path,filter_tag);
+
 else
     disp('Warning: wrong set up in input file!');
     disp('Please double check input settings for this code!');
 end
 
 [avg_vcd] = add_langley_vcd(rcd_S, avg_vcd); % we include the slop in langley fit as VCD
-[avg_vcd2] = add_langley_vcd(rcd_S2, avg_vcd2); % we include the slop in langley fit as VCD
+if CF_run, [avg_vcd2] = add_langley_vcd(rcd_S2, avg_vcd2); end % we include the slop in langley fit as VCD
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% 5. dispaly VCDs and print data %%%%%%%
 if trace_gas == 1
     trace_gas_nm ='ozone';
-else
+elseif trace_gas==2
     trace_gas_nm = 'no2';
+elseif trace_gas==3
+    trace_gas_nm = 'no2uv';
 end
 
 VCD_table = struct2table(avg_vcd); % convert VCD output (structure) to table format
@@ -149,7 +232,7 @@ year_table = table(repmat(year,[N(1),1]),'VariableNames',{'year'});
 %VCD_table = [VCD_table(:,18),VCD_table(:,1:17)];% this is just move year to the 1st column
 VCD_table = [year_table,VCD_table];
 
-try 
+if CF_run 
     VCD_table2 = struct2table(avg_vcd2); % convert VCD output (structure) to table format
     N = size(VCD_table2);
     %VCD_table2.year = repmat(year,[N(1),1]);
@@ -157,28 +240,40 @@ try
     %VCD_table2 = [VCD_table2(:,16),VCD_table2(:,1:15)];% this is just move year to the 1st column
     %VCD_table = [VCD_table(:,18),VCD_table(:,1:17)];% this is just move year to the 1st column
     VCD_table2 = [year_table2,VCD_table2];
-catch
-    disp('can not perform cloud filter working, check if this is used with CF package ... ');
 end
 
 %% plot timeserise
 figure;hold all; % plot VCDs as a function of fractional day of the year
 gscatter(VCD_table.fd,VCD_table.mean_vcd,VCD_table.ampm,'br','..');
-try
+if CF_run
     gscatter(VCD_table2.fd,VCD_table2.mean_vcd,VCD_table2.ampm,'br','..');
     legend('V1 a.m.','V1 p.m.','V2 a.m.','V2 p.m.');
-catch
 end
 ylabel([trace_gas_nm ' molec/cm^2']);
-xlabel('day of the year (UTC)');
+xlabel('Day of the year (UTC)');
 print_setting(1/2,save_fig,[trace_gas_nm 'VCDs']);
 
 
 %% print data to tables
 fid = fopen([trace_gas_nm 'VCDs.csv'],'w+');% print the VCD data to txt file
 writetable(VCD_table,[trace_gas_nm 'VCDs.csv'],'Delimiter',',');
-try
+if CF_run
     fid2 = fopen([trace_gas_nm 'VCDs2.csv'],'w+');% print the VCD data to txt file
     writetable(VCD_table2,[trace_gas_nm 'VCDs2.csv'],'Delimiter',',');
-catch
+end
+
+%% save final variables
+if ~CF_run
+    cd('../../')
+
+    if trace_gas == 1
+        trace_gas_nm ='_O3_';
+    elseif trace_gas==2
+        trace_gas_nm = '_NO2_';
+    elseif trace_gas==3
+        trace_gas_nm = '_NO2_UV_';
+    end
+    savename=[input_table.instrument trace_gas_nm 'VCD_' input_table.year '_new.mat'];
+
+    save(savename,'avg_vcd','dscd_S','qdoas_filt','rcd_S','VCD_table');
 end

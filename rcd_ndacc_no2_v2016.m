@@ -1,5 +1,5 @@
 function [rcd_vec, amf] = ... 
-    rcd_ndacc_no2_v2016(year, day, ampm, dscd_S, sza_range, tag, lambda,code_path,NO2_AMF_version)
+    rcd_ndacc_no2_v2016(year, day, ampm, dscd_S, sza_range, tag, lambda,code_path,NO2_AMF_version, filter_tag)
 
 %  This function calculates the RCDs for ozone for a given twilight, SZA range, 
 %  and dscd_vecset.
@@ -131,8 +131,10 @@ copyfile([amf_dir 'no2_amf_output.dat'], out_file);
 
 
 % make plots and get langley dscd_vec for morning and afternoon
-figure(ampm+1)
+close all;
+figure;
+print_setting(1,0,['temp']);
 rcd_vec = langley(day, ampm, dscd_S.fd(ind), dscd_S.sza(ind),...
-    dscd_S.saa(ind), dscd_S.mol_dscd(ind), dscd_S.rms(ind), amf, sza_range);
+    dscd_S.saa(ind), dscd_S.mol_dscd(ind), dscd_S.rms(ind), amf, sza_range, filter_tag);
 
 end

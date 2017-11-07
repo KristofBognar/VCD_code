@@ -1,4 +1,4 @@
-function [dscd_S, rcd_S, avg_vcd] = get_no2_vcds_v2016(dscd_S, lambda, tag, sza_range, save_fig,working_dir,code_path)
+function [dscd_S, rcd_S, avg_vcd] = get_no2_vcds_v2016(dscd_S, lambda, tag, sza_range, save_fig,working_dir,code_path,filter_tag)
 % This function calculates no2 VCDs using a Langley plot analysis
 %ex:[dscd_S, rcd_S, avg_vcd] = get_no2_vcds(dscd_S, 437,'u1');
 %ex:[dscd_S, rcd_S, avg_vcd] = get_no2_vcds(dscd_S, 365,'p0');
@@ -17,10 +17,12 @@ if nargin == 3
      working_dir = pwd;
 end
 %[dscd_S,rcd_S]= get_all_rcds(dscd_S, 1, [86,91],0, 2, tag, lambda);
-[dscd_S,rcd_S]= get_all_rcds_v2016(dscd_S, 1, sza_range,0, 2, tag, lambda,code_path);
+[dscd_S,rcd_S]= get_all_rcds_v2016(dscd_S, 1, sza_range,0, 2, tag, lambda,code_path,filter_tag);
 
 %Average RCDs and create SCDs
-tmp = avg_daily_rcd_v2016(rcd_S, 0, 8, 70,save_fig,working_dir);
+min_sza_range_in_langley = 2;% this is min SZA range for langley plot
+% tmp = avg_daily_rcd_v2016(rcd_S, 0, 8, 70,save_fig,working_dir);
+tmp = avg_daily_rcd_v2017(rcd_S, 0.9, 8, 70,save_fig,working_dir, filter_tag, min_sza_range_in_langley);
 rcd_S.mean.day = tmp(:,1);
 rcd_S.mean.rcd = tmp(:,2);
 rcd_S.mean.diff = tmp(:,3);
