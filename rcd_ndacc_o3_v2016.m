@@ -50,6 +50,13 @@ function [rcd_vec, amf] = ...
 %             14 : number of points included in langley plot
 %       amf : AMF corresponding with each index
 
+% put LUT folder pareller to VCD code folder!
+working_dir = pwd; % record current working dir
+mkdir('AMF');% make folder to save all AMF outputs from LUT
+cd(code_path);
+cd ..
+code_path = [pwd];% this should be the path for LUT folder!
+cd(working_dir);% go back to original working dir
 
 % / works for paths on Windows as well
 if O3_AMF_version == 1
