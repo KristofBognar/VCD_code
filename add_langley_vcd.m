@@ -4,12 +4,12 @@ function [avg_vcd] = add_langley_vcd(rcd_S, avg_vcd)
 N = size(avg_vcd.day);
 for i = 1:1:N(1)
 %    TF = (avg_vcd.day(i) == rcd_S.day) & (avg_vcd.ampm(i) == rcd_S.ampm);
-   TF = find(rcd_S.day==avg_vcd.day(i) & rcd_S.ampm==avg_vcd.ampm(i));
+   TF = find(avg_vcd.day(i) == rcd_S.day & avg_vcd.ampm(i) == rcd_S.ampm);
    if ~isempty(TF)
        avg_vcd.langley_vcd(i,:) = rcd_S.m(TF,:);
        avg_vcd.langley_vcd_err(i,:) = rcd_S.m_1sigma(TF,:);
    else
        avg_vcd.langley_vcd(i,:) = NaN;
        avg_vcd.langley_vcd_err(i,:) = NaN;
-   end
+   end       
 end
