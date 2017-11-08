@@ -80,7 +80,7 @@ for day = 1:366,
                 rcd_ndacc_o3_v2016(dscd_S.year(1), day, ampm, dscd_S,sza_range, o3_flag, tag,code_path,O3_AMF_version, filter_tag, lambda);
         elseif species == 1,
             [rcd_vec_ln, amf] = ... 
-                rcd_ndacc_no2_v2016(dscd_S.year(1), day, ampm, dscd_S, sza_range, tag, lambda,code_path,NO2_AMF_version, filter_tag);
+                rcd_ndacc_no2_v2016(dscd_S.year(1), day, ampm, dscd_S, sza_range, tag, lambda,code_path,NO2_AMF_version);
         end
         rcd_vec = [rcd_vec; rcd_vec_ln];
         dscd_S.amf = [dscd_S.amf; amf];
