@@ -44,12 +44,12 @@ max_j = max(sza_range_j);
 
 % Cristen: regression with no dSCD errors
 % calculate for alpha = 0.31731 (one-sigma)
-% [slope, y_int, R2, y_fit] =...
-%     linear_regression(amf(min_j:max_j), dscd(min_j:max_j), 0.31731, 0);
+[slope, y_int, R2, y_fit] =...
+    linear_regression(amf(min_j:max_j), dscd(min_j:max_j), 0.31731, 0);
 
 % Kristof: linear least-squares fit inluding dSCD errors
-[slope, y_int, R2, y_fit] =...
-    line_fit(amf(min_j:max_j), dscd(min_j:max_j), dscd_err(min_j:max_j));
+% [slope, y_int, R2, y_fit] =...
+%     line_fit(amf(min_j:max_j), dscd(min_j:max_j), dscd_err(min_j:max_j));
 
 
 % make L-data
