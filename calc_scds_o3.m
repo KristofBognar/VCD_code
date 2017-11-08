@@ -29,7 +29,7 @@ for i = 1:length(daily_rcd.mean.day)
     scd(ind) = dscd_S.mol_dscd(ind) + (daily_rcd.mean.rcd(i));
     rcd_err(ind) = sqrt( 1e18 .^2 + (daily_rcd.mean.diff(i)*0.5)^2);
 end
-A = exist('dscd_S.x');
+A = isfield(dscd_S,'x');
 if (A == 1) 
     %scd_sys_err =sqrt( (0.02).^2 + (3*dscd_S.err ./ scd).^2 + ((dscd_S.x *
     %1e17)./dscd_S.mol_dscd).^2 ).*scd; % this 0.02 value was first found

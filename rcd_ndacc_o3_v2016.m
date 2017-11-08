@@ -51,12 +51,12 @@ function [rcd_vec, amf] = ...
 %       amf : AMF corresponding with each index
 
 % put LUT folder pareller to VCD code folder!
-working_dir = pwd; % record current working dir
-mkdir('AMF');% make folder to save all AMF outputs from LUT
-cd(code_path);
-cd ..
-code_path = [pwd];% this should be the path for LUT folder!
-cd(working_dir);% go back to original working dir
+% working_dir = pwd; % record current working dir
+% mkdir('AMF');% make folder to save all AMF outputs from LUT
+% cd(code_path);
+% cd ..
+% code_path = [pwd];% this should be the path for LUT folder!
+% cd(working_dir);% go back to original working dir
 
 % / works for paths on Windows as well
 if O3_AMF_version == 1
@@ -177,6 +177,6 @@ close all;
 figure;
 print_setting(1,0,['temp']);
 rcd_vec = langley(day, ampm, dscd_S.fd(ind), dscd_S.sza(ind),...
-    dscd_S.saa(ind), dscd_S.mol_dscd(ind), dscd_S.rms(ind), amf, sza_range, filter_tag);
+    dscd_S.saa(ind), dscd_S.mol_dscd(ind), dscd_S.rms(ind), amf, sza_range, filter_tag,dscd_S.err);
 
 end
