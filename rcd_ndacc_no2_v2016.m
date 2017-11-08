@@ -135,6 +135,6 @@ close all;
 figure;
 print_setting(1,0,['temp']);
 rcd_vec = langley(day, ampm, dscd_S.fd(ind), dscd_S.sza(ind),...
-    dscd_S.saa(ind), dscd_S.mol_dscd(ind), dscd_S.rms(ind), amf, sza_range, filter_tag);
+    dscd_S.saa(ind), dscd_S.mol_dscd(ind), dscd_S.rms(ind), amf, sza_range, filter_tag,dscd_S.err);
 
 end

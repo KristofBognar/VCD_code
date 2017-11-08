@@ -38,14 +38,21 @@ end
 %% get fit results
 
 coeffs=coeffvalues(fitresult);
-conf=confint(fitresult);
+try
+    conf=confint(fitresult);
 
-slope_err=mean( abs(conf(:,1)-coeffs(1)) );
-yint_err=mean( abs(conf(:,2)-coeffs(2)) );
+    slope_err=mean( abs(conf(:,1)-coeffs(1)) );
+    yint_err=mean( abs(conf(:,2)-coeffs(2)) );
 
-slope=[coeffs(1),slope_err];
-y_int=[coeffs(2),yint_err];
-R2=gof.rsquare;
-y_fit=polyval(coeffs,x);
+    slope=[coeffs(1),slope_err];
+    y_int=[coeffs(2),yint_err];
+    R2=gof.rsquare;
+    y_fit=polyval(coeffs,x);
+catch
+    slope=[NaN,NaN];
+    y_int=[NaN,NaN];
+    R2=NaN;
+    y_fit=NaN;
+end
 
 
