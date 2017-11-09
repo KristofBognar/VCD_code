@@ -53,7 +53,10 @@ function [rcd_vec, amf] = ...
 % put LUT folder pareller to VCD code folder!
 if ispc
     working_dir = pwd; % record current working dir
-    mkdir('AMF');% make folder to save all AMF outputs from LUT
+    AMF_folder_exist = exist('AMF'); % check if we already have AMF folder
+    if AMF_folder_exist ~= 7 % if no AMF folder, we will make one
+        mkdir('AMF');% make folder to save all AMF outputs from LUT
+    end
     cd(code_path);
     cd ..
     code_path = [pwd];% this should be the path for LUT folder!
