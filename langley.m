@@ -1,5 +1,5 @@
 function langley_vec = langley(day, ampm, fd, sza, saa, dscd, rms, amf,...
-    ideal_sza_range,filter_tag)
+    ideal_sza_range,filter_tag,dscd_err)
 %langley_vec = langley(day, ampm, fd, sza, saa, dscd, rms, amf,ideal_sza_range)
 % This function creates a langley plot and saves the output from the
 % Langley plot as well as the interpolated air-mass-factors
