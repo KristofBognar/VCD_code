@@ -76,12 +76,23 @@ if nargin==0
         error('QDOAS data must be in matlab table format');
     end
 
+    % select filter
+    try
+        if strcmp(input_table.filter,'bad')
+            goodfilt=false;
+        else
+            goodfilt=true;
+        end
+    catch
+        goodfilt=true;
+    end
     
 elseif nargin~=7
     error('Need 7 input variables');
 else
     CF_run=true;
-
+    goodfilt=true;
+    
     % trace gas type
     trace_gas = 1; % 1 = ozone, 2 = NO2
 
@@ -148,9 +159,17 @@ load('input_sample_2017_no_sonde.mat'); % use the default structure of QDOAS out
 if CF_run, cd(QDOAS_data_dir); end
 % if trace_gas == 1 % we ONLY retrieve ozone from UT-GBS Vis data! (follow NDACC recommendation)
     
-
+% choose filter
+if goodfilt
+    filt=filt_good;
+    disp('Data read using good RMS filter')
+else
+    filt=filt_bad;
+    disp('Data read using bad RMS filter')
+end
+    
 % trace gas is selected in read_QDOAS_v2017 when reading from table input
-[dscd_S, qdoas_filt, qdoas_raw, col] = read_QDOAS_v2017(QDOAS_data_file, col_o3_3, filt_good,3,save_fig,working_dir, trace_gas, CF_run);
+[dscd_S, qdoas_filt, qdoas_raw, col] = read_QDOAS_v2017(QDOAS_data_file, col_o3_3, filt,3,save_fig,working_dir, trace_gas, CF_run);
     
 
 %[dscd_S, qdoas_filt, qdoas_raw] = read_QDOAS_v2016(QDOAS_data_file, col_o3_3, filt_good,1,save_fig,working_dir);
@@ -273,7 +292,7 @@ if ~CF_run
     elseif trace_gas==3
         trace_gas_nm = '_NO2_UV_';
     end
-    savename=[input_table.instrument trace_gas_nm 'VCD_' input_table.year '_new.mat'];
+    savename=[input_table.instrument trace_gas_nm 'VCD_' input_table.year '.mat'];
 
     save(savename,'avg_vcd','dscd_S','qdoas_filt','rcd_S','VCD_table');
 end

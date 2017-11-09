@@ -61,10 +61,12 @@ elseif species == 0
     disp(['Notice: You have selected NDACC O_3 AMF version ' version_str]);
     disp('If want use different AMF, please check get_all_rcds_v2016.m');
 
-%    str = input(['Continue?: Y/N [Y]: '],'s');
-%    if strcmp(str,'N')
-%        return;
-%    end
+    if isunix
+        str = input(['Continue?: Y/N [Y]: '],'s');
+        if strcmp(str,'N')
+           return;
+        end
+    end
 end
 
 if nargin < 7,
