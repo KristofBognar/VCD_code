@@ -15,6 +15,10 @@ while ~feof(fid)
     end
 end
 
+if ~exist(input_table.plot_path), mkdir(input_table.plot_path); end
+
+copyfile('VCD_input_file.txt', [input_table.plot_path 'VCD_input_file.txt'], 'f');
+
 % try
 %     mkdir(input_table.plot_path);
 %     status = copyfile('CF_input_file.txt', [input_table.plot_path 'CF_input_file_archive.txt'], 'f');
