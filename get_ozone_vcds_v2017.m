@@ -17,27 +17,15 @@ end
 
 %% extra filter by sky flags %% By Xiaoyi
 TF = dscd_S.HQ_index_alter == 1;
-
-                   dscd_S.day(TF,:) = [];
-                    dscd_S.fd(TF,:) = [];
-                  dscd_S.ampm(TF,:) = [];
-                   dscd_S.sza(TF,:) = [];
-                   dscd_S.saa(TF,:) = [];
-                   dscd_S.rms(TF,:) = [];
-              dscd_S.mol_dscd(TF,:) = [];
-                   dscd_S.err(TF,:) = [];
-                    dscd_S.CI(TF,:) = [];
-                dscd_S.cal_CI(TF,:) = [];
-                 dscd_S.clear(TF,:) = [];
-              dscd_S.mediocre(TF,:) = [];
-                dscd_S.cloudy(TF,:) = [];
-       dscd_S.TF_smooth_alter(TF,:) = [];
-    dscd_S.TF_smooth_alter_O4(TF,:) = [];
-        dscd_S.HQ_index_alter(TF,:) = [];
-                 dscd_S.shift(TF,:) = [];
-               dscd_S.stretch(TF,:) = [];
-               dscd_S.ref_sza(TF,:) = [];
-                  dscd_S.year(TF,:) = [];
+dscd_S_field_names = fieldnames(dscd_S);% find all fields we have in dscd_S
+N_names = size(dscd_S_field_names);
+for i = 1:1:N_names(1)
+    field_nm = dscd_S_field_names{i,:}; % find a field we have in dscd_S
+    value = getfield(dscd_S, field_nm); % get its value
+    value(TF,:) = []; % filter it by HQ_index
+    dscd_S = rmfield(dscd_S,field_nm); % delet old field
+    dscd_S = setfield(dscd_S,field_nm,value); % assign filtered value back to structure
+end
 
 % Run through first time to get output scds!
 n_days = 365;
