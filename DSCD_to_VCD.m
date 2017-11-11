@@ -163,9 +163,14 @@ if CF_run, cd(QDOAS_data_dir); end
 if goodfilt
     filt=filt_good;
     disp('Data read using good RMS filter')
+    
+    % set Different RMS filter for NO2 UV (from Cristen's thesis) 
+    if trace_gas==3, filt.rms_vec=[[87,0.002];[92,0.003]]; end
 else
     filt=filt_bad;
     disp('Data read using bad RMS filter')
+    
+    if trace_gas==3, filt.rms_vec=[[87,0.004];[92,0.006]]; end
 end
     
 % trace gas is selected in read_QDOAS_v2017 when reading from table input
