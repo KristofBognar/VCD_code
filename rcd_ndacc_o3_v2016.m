@@ -53,7 +53,10 @@ function [rcd_vec, amf] = ...
 % put LUT folder pareller to VCD code folder!
 if ispc
     working_dir = pwd; % record current working dir
-    mkdir('AMF');% make folder to save all AMF outputs from LUT
+    AMF_folder_exist = exist('AMF'); % check if we already have AMF folder
+    if AMF_folder_exist ~= 7 % if no AMF folder, we will make one
+        mkdir('AMF');% make folder to save all AMF outputs from LUT
+    end
     cd(code_path);
     cd ..
     code_path = [pwd];% this should be the path for LUT folder!
@@ -90,8 +93,10 @@ end
     
 if condition
     amf = ones(length(ind),1) * NaN;
-    disp(['No input ozone VCDs for day ' num2str(day) ampm_str])
-    return
+    disp(['Warning: No input ozone VCDs for day ' num2str(day) ampm_str])
+    %return % if we want only retrieval days with ozonesondes, enable this "return"
+    o3_flag = 2; % if we want use ozonesonde VCD as 1st choice for LUT, but keep GBS dSCDs as 2nd choice, use this line
+    disp('Warning: Code will fall back to use GBS dSCDs as LUT inputs');
 end
 disp(['Calculating RCD for day: ' num2str(day) ' ' ampm_str])
 

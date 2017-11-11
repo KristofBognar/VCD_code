@@ -17,27 +17,15 @@ end
 
 %% extra filter by sky flags %% By Xiaoyi
 TF = dscd_S.HQ_index_alter == 1;
-
-                   dscd_S.day(TF,:) = [];
-                    dscd_S.fd(TF,:) = [];
-                  dscd_S.ampm(TF,:) = [];
-                   dscd_S.sza(TF,:) = [];
-                   dscd_S.saa(TF,:) = [];
-                   dscd_S.rms(TF,:) = [];
-              dscd_S.mol_dscd(TF,:) = [];
-                   dscd_S.err(TF,:) = [];
-                    dscd_S.CI(TF,:) = [];
-                dscd_S.cal_CI(TF,:) = [];
-                 dscd_S.clear(TF,:) = [];
-              dscd_S.mediocre(TF,:) = [];
-                dscd_S.cloudy(TF,:) = [];
-       dscd_S.TF_smooth_alter(TF,:) = [];
-    dscd_S.TF_smooth_alter_O4(TF,:) = [];
-        dscd_S.HQ_index_alter(TF,:) = [];
-                 dscd_S.shift(TF,:) = [];
-               dscd_S.stretch(TF,:) = [];
-               dscd_S.ref_sza(TF,:) = [];
-                  dscd_S.year(TF,:) = [];
+dscd_S_field_names = fieldnames(dscd_S);% find all fields we have in dscd_S
+N_names = size(dscd_S_field_names);
+for i = 1:1:N_names(1)
+    field_nm = dscd_S_field_names{i,:}; % find a field we have in dscd_S
+    value = getfield(dscd_S, field_nm); % get its value
+    value(TF,:) = []; % filter it by HQ_index
+    dscd_S = rmfield(dscd_S,field_nm); % delet old field
+    dscd_S = setfield(dscd_S,field_nm,value); % assign filtered value back to structure
+end
 
 % Run through first time to get output scds!
 n_days = 365;
@@ -52,15 +40,21 @@ if isnan(dscd_S.o3)
     str = input(prompt,'s');
     if isempty(str)
         str = 'Y';
+        %  o3_flag: this flag tells us whether the ozone values input to the
+        %  calculation code are SCDs or
+        %  VCDs.  1 for O3 VCD in DU and 2 for O3 SCD in molec/cm2.
+        o3_flag = 2; % if we do not have ozonesonde, or just not avalible for now, we still can run the VCD code, but LUT will use input of GBS dSCDs not ozonesonde VCDs
     end
     if strcmp(str,'N')
         return;
     end
+else
+    o3_flag = 1; % if we have ozonesonde measurements for a year, we will use ozonesonde VCD as LUT input by default
 end
 %[dscd_S,rcd_S]= get_all_rcds(dscd_S, 0, [86,91], 0, 1, [tag '_L1']);% Cristen
 %[dscd_S,rcd_S]= get_all_rcds(dscd_S, 0, [86,91], 0, 2, [tag '_L1'],505);% Xiaoyi: change o3 flag and lamda if need
 %[dscd_S,rcd_S]= get_all_rcds_v2016(dscd_S, 0, sza_range, 0, 2, [tag '_L2'],lambda,code_path, filter_tag);% Xiaoyi: change o3 flag and lamda if need
-[dscd_S,rcd_S]= get_all_rcds_v2016(dscd_S, 0, sza_range, 0, 1, [tag '_L2'],lambda,code_path, filter_tag);% Xiaoyi: change o3 for LUT input(2 for SCDs, 1 for VCDs)
+[dscd_S,rcd_S]= get_all_rcds_v2016(dscd_S, 0, sza_range, 0, o3_flag, [tag '_L2'],lambda,code_path, filter_tag);% Xiaoyi: change o3 for LUT input(2 for SCDs, 1 for VCDs)
 
 %Average RCDs and create SCDs
 %tmp = avg_daily_rcd_v2016(rcd_S, 0.9, 8, 70,save_fig,working_dir, filter_tag);
