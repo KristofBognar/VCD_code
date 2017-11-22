@@ -89,6 +89,13 @@ elseif version == 3
     col.year = find(strcmpi(data_output.Properties.VariableNames,'Year'));
     col.elev = find(strcmpi(data_output.Properties.VariableNames,'Elevviewingangle'));
     
+    try
+        col.scans = find(strcmpi(data_output.Properties.VariableNames,'Scans'));
+        col.tint = find(strcmpi(data_output.Properties.VariableNames,'Tint'));
+    catch
+        error('QDOAS file has no columns for n.o. scans and/or integration time')
+    end
+    
     if trace_gas==1 % ozone dSCDs
         col.ref_sza = find(strcmpi(data_output.Properties.VariableNames,'O3RefZm'));
         col.dscd = find(strcmpi(data_output.Properties.VariableNames,'O3SlColo3'));
@@ -252,6 +259,7 @@ end
     dscd_S.rms = qdoas_filt(:,col.rms);
     dscd_S.mol_dscd = qdoas_filt(:, col.dscd);
     dscd_S.err = qdoas_filt(:, col.err);
+    dscd_S.tot_tint = qdoas_filt(:, col.scans).*qdoas_filt(:, col.tint);
     
     if version == 3 && CF_run
     dscd_S.CI = qdoas_filt(:, col.CI);
