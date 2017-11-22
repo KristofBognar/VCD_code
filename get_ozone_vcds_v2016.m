@@ -47,7 +47,14 @@ end
 %Average RCDs and create SCDs
 %tmp = avg_daily_rcd_v2016(rcd_S, 0.9, 8, 70,save_fig,working_dir,filter_tag);
 min_sza_range_in_langley = 2;% this is min SZA range for langley plot
-tmp = avg_daily_rcd_v2017(rcd_S, 0.9, 8, 70,save_fig,working_dir, filter_tag, min_sza_range_in_langley);
+
+if dscd_S.year(1)==2003 || dscd_S.year(1)==2004
+    min_r2=0.8;
+else
+    min_r2=0.9;
+end
+
+tmp = avg_daily_rcd_v2017(rcd_S, min_r2, 8, 70,save_fig,working_dir, filter_tag, min_sza_range_in_langley);
 rcd_S.mean.day = tmp(:,1);
 rcd_S.mean.rcd = tmp(:,2);
 rcd_S.mean.diff = tmp(:,3);
