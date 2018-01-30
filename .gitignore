@@ -3,3 +3,6 @@
 
 # OSX / *nix default autosave extension
 *.m~
+
+# In case AMF lut directory is still in code folder
+AMF_LUT/*

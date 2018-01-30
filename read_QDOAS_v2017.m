@@ -1,4 +1,4 @@
-function [dscd_S, qdoas_filt, qdoas_raw, col] = read_QDOAS_v2017(file_nm, col, filt,version,save_fig,working_dir)
+function [dscd_S, qdoas_filt, qdoas_raw, col] = read_QDOAS_v2017(file_nm, col, filt,version,save_fig,working_dir,trace_gas,CF_run)
 % [dscd_S, qdoas_filt, qdoas_raw] = read_QDOAS(file_nm, col, filt,2)
 % version = 1 for DOAS data
 % version = 2 for MAX-DOAS data, this function will be used as subfunction
@@ -76,20 +76,33 @@ if (version == 1) | (version == 2)
     qdoas_raw = (fscanf(fid,'%f', [col.tot_nbr,inf]))';
     fclose(fid);
 elseif version == 3
-    load(file_nm); % note, if we load sky flaged data (mat file), we will construct the "input sample" structure automatically
+    try
+        load(file_nm); % note, if we load sky flaged data (mat file), we will construct the "input sample" structure automatically
+    catch
+        error('QDOAS table does not exist, please check file path');
+    end
     data_output = data ;
     N_total = size(data_output); col.tot_nbr = N_total(2);
     col.fd = find(strcmpi(data_output.Properties.VariableNames,'Fractionalday'));
     col.sza = find(strcmpi(data_output.Properties.VariableNames,'SZA'));
     col.saa = find(strcmpi(data_output.Properties.VariableNames,'SolarAzimuthAngle'));    
-    col.ref_sza = find(strcmpi(data_output.Properties.VariableNames,'O3RefZm'));
     col.year = find(strcmpi(data_output.Properties.VariableNames,'Year'));
     col.elev = find(strcmpi(data_output.Properties.VariableNames,'Elevviewingangle'));
-    col.dscd = find(strcmpi(data_output.Properties.VariableNames,'O3SlColo3'));
-    col.err = find(strcmpi(data_output.Properties.VariableNames,'O3SlErro3'));
-    col.rms = find(strcmpi(data_output.Properties.VariableNames,'O3RMS'));
-    col.shift = find(strcmpi(data_output.Properties.VariableNames,'O3ShiftSpectrum'));
-    col.stretch = find(strcmpi(data_output.Properties.VariableNames,'O3StretchSpectrum1'));
+    
+    try
+        col.scans = find(strcmpi(data_output.Properties.VariableNames,'Scans'));
+        col.tint = find(strcmpi(data_output.Properties.VariableNames,'Tint'));
+    catch
+        error('QDOAS file has no columns for n.o. scans and/or integration time')
+    end
+    
+    if trace_gas==1 % ozone dSCDs
+        col.ref_sza = find(strcmpi(data_output.Properties.VariableNames,'O3RefZm'));
+        col.dscd = find(strcmpi(data_output.Properties.VariableNames,'O3SlColo3'));
+        col.err = find(strcmpi(data_output.Properties.VariableNames,'O3SlErro3'));
+        col.rms = find(strcmpi(data_output.Properties.VariableNames,'O3RMS'));
+        col.shift = find(strcmpi(data_output.Properties.VariableNames,'O3ShiftSpectrum'));
+        col.stretch = find(strcmpi(data_output.Properties.VariableNames,'O3StretchSpectrum1'));
     
     try
         col.x = find(strcmpi(data_output.Properties.VariableNames,'O3SlColX'));
@@ -97,14 +110,26 @@ elseif version == 3
         disp('No X xs fitting column found, or the name of the X column has been changed!')
     end
     
-    col.CI = find(strcmpi(data_output.Properties.VariableNames,'CI'));
-    col.cal_CI = find(strcmpi(data_output.Properties.VariableNames,'cal_CI'));
-    col.clear = find(strcmpi(data_output.Properties.VariableNames,'clear'));
-    col.mediocre = find(strcmpi(data_output.Properties.VariableNames,'mediocre'));
-    col.cloudy = find(strcmpi(data_output.Properties.VariableNames,'cloudy'));
-    col.TF_smooth_alter = find(strcmpi(data_output.Properties.VariableNames,'TF_smooth_alter'));
-    col.TF_smooth_alter_O4 = find(strcmpi(data_output.Properties.VariableNames,'TF_smooth_alter_O4'));
-    col.HQ_index_alter = find(strcmpi(data_output.Properties.VariableNames,'HQ_index_alter'));
+    elseif trace_gas==2 || trace_gas==3 % no2 VIS and UV dSCDs
+        col.ref_sza = find(strcmpi(data_output.Properties.VariableNames,'NO2RefZm'));
+        col.dscd = find(strcmpi(data_output.Properties.VariableNames,'NO2SlColno2'));
+        col.err = find(strcmpi(data_output.Properties.VariableNames,'NO2SlErrno2'));
+        col.rms = find(strcmpi(data_output.Properties.VariableNames,'NO2RMS'));
+        col.shift = find(strcmpi(data_output.Properties.VariableNames,'NO2ShiftSpectrum'));
+        col.stretch = find(strcmpi(data_output.Properties.VariableNames,'NO2StretchSpectrum1'));
+        
+    end
+    
+    if CF_run
+        col.CI = find(strcmpi(data_output.Properties.VariableNames,'CI'));
+        col.cal_CI = find(strcmpi(data_output.Properties.VariableNames,'cal_CI'));
+        col.clear = find(strcmpi(data_output.Properties.VariableNames,'clear'));
+        col.mediocre = find(strcmpi(data_output.Properties.VariableNames,'mediocre'));
+        col.cloudy = find(strcmpi(data_output.Properties.VariableNames,'cloudy'));
+        col.TF_smooth_alter = find(strcmpi(data_output.Properties.VariableNames,'TF_smooth_alter'));
+        col.TF_smooth_alter_O4 = find(strcmpi(data_output.Properties.VariableNames,'TF_smooth_alter_O4'));
+        col.HQ_index_alter = find(strcmpi(data_output.Properties.VariableNames,'HQ_index_alter'));
+    end
     
     for i = 1:1:N_total(2)
         try
@@ -114,8 +139,7 @@ elseif version == 3
         end
     end
 end
-    
-    
+
     % Now sort the data up by fractional day and ID whether there are
     % doubles of some values
     qdoas_raw = sortrows(qdoas_raw, col.fd);
@@ -139,7 +163,7 @@ end
     % and filter by viewing elevation
     try
         ind = find( qdoas_tmp(:, col.elev) == filt.elev |...
-            qdoas_tmp(:, col.elev) < -90);
+            qdoas_tmp(:, col.elev) < -90 | qdoas_tmp(:, col.elev) > 99 );
     catch
         disp('No viwing elevation filter.')
         ind = 1:length(qdoas_tmp(:,1));
@@ -191,21 +215,21 @@ end
     subplot(3,1,1)
     hold on
     plot(qdoas_raw(:,col.fd), qdoas_raw(:, col.dscd), '.', 'color','r')
-    plot(qdoas_filt(:,col.fd), qdoas_filt(:, col.dscd), '.')
+    plot(qdoas_filt(:,col.fd), qdoas_filt(:, col.dscd), 'b.')
     legend('Raw', 'Filt')
     xlabel('day')
     ylabel('DSCD (mol/cm^2)')
     subplot(3,1,2)
     hold on
     plot(qdoas_raw(:,col.fd), qdoas_raw(:, col.rms), '.', 'color','r')
-    plot(qdoas_filt(:,col.fd), qdoas_filt(:, col.rms), '.')
+    plot(qdoas_filt(:,col.fd), qdoas_filt(:, col.rms), 'b.')
     legend('Raw', 'Filt')
     xlabel('day')
     ylabel('RMS')
     subplot(3,1,3)
     hold on
     plot(qdoas_raw(:,col.fd), qdoas_raw(:, col.sza), '.', 'color','r')
-    plot(qdoas_filt(:,col.fd), qdoas_filt(:, col.sza), '.')
+    plot(qdoas_filt(:,col.fd), qdoas_filt(:, col.sza), 'b.')
     legend('Raw', 'Filt')
     xlabel('day')
     ylabel('SZA')
@@ -235,8 +259,9 @@ end
     dscd_S.rms = qdoas_filt(:,col.rms);
     dscd_S.mol_dscd = qdoas_filt(:, col.dscd);
     dscd_S.err = qdoas_filt(:, col.err);
+    dscd_S.tot_tint = qdoas_filt(:, col.scans).*qdoas_filt(:, col.tint);
     
-    if version == 3
+    if version == 3 && CF_run
     dscd_S.CI = qdoas_filt(:, col.CI);
     dscd_S.cal_CI = qdoas_filt(:, col.cal_CI);
     dscd_S.clear = qdoas_filt(:, col.clear);
