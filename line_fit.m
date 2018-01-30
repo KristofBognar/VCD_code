@@ -1,5 +1,5 @@
 function [slope, y_int, R2, y_fit] = line_fit(x, y, sig_y)
-%line_fit(X,Y,YERR)
+%[slope, y_int, R2, y_fit] =line_fit(X,Y,YERR)
 %  Create a linear least-squares fit.
 %
 %  Data for 'untitled fit 1' fit:
@@ -16,13 +16,20 @@ function [slope, y_int, R2, y_fit] = line_fit(x, y, sig_y)
 
 
 %% Fit data
-% weights are 1/sigma^2 for matlab
-[xData, yData, weights] = prepareCurveData( x, y, 1./(sig_y.^2) );
 
 % Set up fittype and options.
 ft = fittype( 'poly1' );
 opts = fitoptions( 'Method', 'LinearLeastSquares' );
-opts.Weights = weights;
+
+% check if errors on y data are provided
+if nargin==3
+    % weights are 1/sigma^2 for matlab
+    [xData, yData, weights] = prepareCurveData( x, y, 1./(sig_y.^2) );
+
+    opts.Weights = weights;
+else
+    [xData, yData] = prepareCurveData( x, y );
+end
 
 % Fit model to data.
 try 
