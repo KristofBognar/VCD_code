@@ -87,6 +87,13 @@ if nargin==0
         goodfilt=true;
     end
     
+    % add tag to saved file if submission is for RD data
+    batch_tag='';
+    if any(strcmpi(input_table.Properties.VariableNames,'batch'))
+        batch_tag=['_' input_table.batch];        
+    end
+    
+    
 elseif nargin~=7
     error('Need 7 input variables');
 else
@@ -297,7 +304,7 @@ if ~CF_run
     elseif trace_gas==3
         trace_gas_nm = '_NO2_UV_';
     end
-    savename=[input_table.instrument trace_gas_nm 'VCD_' input_table.year '.mat'];
+    savename=[input_table.instrument trace_gas_nm 'VCD_' input_table.year batch_tag '.mat'];
 
     save(savename,'avg_vcd','dscd_S','qdoas_filt','rcd_S','VCD_table');
 end

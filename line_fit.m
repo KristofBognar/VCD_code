@@ -5,10 +5,8 @@ function [slope, y_int, R2, y_fit] = line_fit(x, y, sig_y)
 %  Data for 'untitled fit 1' fit:
 %      X Input : x
 %      Y Output: y
-%      Weights : yerr
+%      sig_y : yerr
 %  Output:
-%      fitresult : a fit object representing the fit.
-%      gof : structure with goodness-of fit info.
 %
 %  See also FIT, CFIT, SFIT.
 
