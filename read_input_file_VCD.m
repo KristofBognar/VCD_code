@@ -4,6 +4,11 @@ input_table = table;
 
 cd ..
 cd('CF_package_local');
+
+if ~exist('VCD_input_file.txt', 'file')
+    error('Input file not found')
+end
+
 fid = fopen('VCD_input_file.txt','r');
 %tline = fgetl(fid);
 
@@ -15,7 +20,7 @@ while ~feof(fid)
     end
 end
 
-if ~exist(input_table.plot_path), mkdir(input_table.plot_path); end
+if ~exist(input_table.plot_path,'dir'), mkdir(input_table.plot_path); end
 
 copyfile('VCD_input_file.txt', [input_table.plot_path 'VCD_input_file.txt'], 'f');
 

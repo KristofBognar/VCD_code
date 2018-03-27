@@ -1,30 +1,20 @@
-function [dscd_S, rcd_S, avg_vcd] = get_ozone_vcds_v2017(dscd_S, sonde, tag,sza_range,lambda, save_fig,working_dir,code_path, filter_tag)
+function [dscd_S, rcd_S, avg_vcd] = get_ozone_vcds_v2018(dscd_S, sonde, tag,sza_range,lambda, save_fig,working_dir,code_path, filter_tag)
 % This function calculates o3 VCDs using a Langley plot analysis
 %ex:[dscd_S, rcd_S, avg_vcd] = get_ozone_vcds(dscd_S, sonde_fd, 'u1');
-% this function need read AMF! runing in F:\Work\QDOAS\Output\ where has
-% the \AMF folder
+% this function need read AMF! 
 %Xiaoyi's note: sonde: 1. year 2. julian day 3. hours 4. ozone data (Integrated Ozone in
 % DU)
 %sonde_fd: 1. faraction time(including year) 2. ozone data
 % output: struct: dscd_S, rcd_S, avg_vcd
+%
+% modified by Kristof Bognar, March 2018: calculate sys and rand errors
+% separately, according to Hendrick et al., 2011 table
 
 if nargin == 3 % in default setting we won't save figrues
    lambda = 505; % centre wavelength for ozone DOAS fitting
    sza_range = [86,91]; % SZA range will be used to perform langley fit
    save_fig = 0;
    working_dir = pwd;
-end
-
-%% extra filter by sky flags %% By Xiaoyi
-TF = dscd_S.HQ_index_alter == 1;
-dscd_S_field_names = fieldnames(dscd_S);% find all fields we have in dscd_S
-N_names = size(dscd_S_field_names);
-for i = 1:1:N_names(1)
-    field_nm = dscd_S_field_names{i,:}; % find a field we have in dscd_S
-    value = getfield(dscd_S, field_nm); % get its value
-    value(TF,:) = []; % filter it by HQ_index
-    dscd_S = rmfield(dscd_S,field_nm); % delet old field
-    dscd_S = setfield(dscd_S,field_nm,value); % assign filtered value back to structure
 end
 
 % Run through first time to get output scds!
@@ -57,10 +47,16 @@ end
 [dscd_S,rcd_S]= get_all_rcds_v2016(dscd_S, 0, sza_range, 0, o3_flag, [tag '_L2'],lambda,code_path, filter_tag);% Xiaoyi: change o3 for LUT input(2 for SCDs, 1 for VCDs)
 
 %Average RCDs and create SCDs
-%tmp = avg_daily_rcd_v2016(rcd_S, 0.9, 8, 70,save_fig,working_dir, filter_tag);
+%tmp = avg_daily_rcd_v2016(rcd_S, 0.9, 8, 70,save_fig,working_dir,filter_tag);
 min_sza_range_in_langley = 2;% this is min SZA range for langley plot
 
-tmp = avg_daily_rcd_v2017(rcd_S, 0.9, 8, 70,save_fig,working_dir, filter_tag, min_sza_range_in_langley);
+if dscd_S.year(1)==2003 || dscd_S.year(1)==2004
+    min_r2=0.8;
+else
+    min_r2=0.9;
+end
+
+tmp = avg_daily_rcd_v2017(rcd_S, min_r2, 8, 70,save_fig,working_dir, filter_tag, min_sza_range_in_langley);
 rcd_S.mean.day = tmp(:,1);
 rcd_S.mean.rcd = tmp(:,2);
 rcd_S.mean.diff = tmp(:,3);

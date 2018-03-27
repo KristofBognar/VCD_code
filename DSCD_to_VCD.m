@@ -27,10 +27,13 @@ function [VCD_table, dscd_S, rcd_S, avg_vcd, qdoas_filt, VCD_table2, dscd_S2, rc
 %        12. saa: weighted mean solar azimuth angle
 %        13. mean_vcd: twilight's VCD
 %        14. sigma_mean_vcd: mean systematic error in VCDs
-%        15. std_vcd: standard deviation of VCDs
+%        15. std_vcd: standard deviation of VCDs + other random error components
 %        16. sigma_w_vcd: weighted mean error of VCDs
 %        17. langley_vcd: slop of the langley fit
 %        18. langley_vcd_err: err in slop of the langley fit
+%
+% Kristof Bognar: modified to return error budget based on Hendrick et al.,
+% 2011. For old error budget, uncomment 2016 versions of functions in step 4
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -218,13 +221,15 @@ end
     
 if trace_gas == 1
     filter_tag = '';
-    [dscd_S, rcd_S, avg_vcd] = get_ozone_vcds_v2016(dscd_S, sonde, instr_str, sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
+% %     [dscd_S, rcd_S, avg_vcd] = get_ozone_vcds_v2016(dscd_S, sonde, instr_str, sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
+    [dscd_S, rcd_S, avg_vcd] = get_ozone_vcds_v2018(dscd_S, sonde, instr_str, sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
     [avg_vcd,rcd_S] = assign_refspec_time_to_avgvcd(dscd_S,avg_vcd,rcd_S);% this will assgin the ref spec time and sza to rcd_S and avg_vcd
    
     if CF_run
         disp('Traditional Langley fits finished ... wait for 120 s ... ');pause(120);
         
         filter_tag = 'nocloud';
+        error('modify get_ozone_vcds_v2017.m to include new error budget')
         [dscd_S2, rcd_S2, avg_vcd2] = get_ozone_vcds_v2017(dscd_S, sonde,instr_str,sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
         [avg_vcd2,rcd_S2] = assign_refspec_time_to_avgvcd(dscd_S2,avg_vcd2,rcd_S2);% this will assgin the ref spec time and sza to rcd_S and avg_vcd
         disp('Cloud-screened Langley fits finished ... wait for 120 s ... ');pause(120);
@@ -232,10 +237,12 @@ if trace_gas == 1
     
 elseif trace_gas == 2
     filter_tag = '';
-    [dscd_S, rcd_S, avg_vcd] = get_no2_vcds_v2016(dscd_S, lambda_no2, instr_str, sza_range_no2, save_fig,working_dir,code_path,filter_tag);
+% %     [dscd_S, rcd_S, avg_vcd] = get_no2_vcds_v2016(dscd_S, lambda_no2, instr_str, sza_range_no2, save_fig,working_dir,code_path,filter_tag);
+    [dscd_S, rcd_S, avg_vcd] = get_no2_vcds_v2018(dscd_S, lambda_no2, instr_str, sza_range_no2, save_fig,working_dir,code_path,filter_tag);
 elseif trace_gas == 3
     filter_tag = '';
-    [dscd_S, rcd_S, avg_vcd] = get_no2_vcds_v2016(dscd_S, lambda_no2_UV, instr_str, sza_range_no2, save_fig,working_dir,code_path,filter_tag);
+% %     [dscd_S, rcd_S, avg_vcd] = get_no2_vcds_v2016(dscd_S, lambda_no2_UV, instr_str, sza_range_no2, save_fig,working_dir,code_path,filter_tag);
+    [dscd_S, rcd_S, avg_vcd] = get_no2_vcds_v2018(dscd_S, lambda_no2_UV, instr_str, sza_range_no2, save_fig,working_dir,code_path,filter_tag);
 
 else
     disp('Warning: wrong set up in input file!');
