@@ -36,6 +36,9 @@ function [VCD_table, dscd_S, rcd_S, avg_vcd, qdoas_filt, VCD_table2, dscd_S2, rc
 % 2011. For old error budget, uncomment 2016 versions of functions in step 4
 
 %%
+
+for twostep=[1,2]
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%% 0. input options %%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -92,8 +95,10 @@ if nargin==0
     
     % add tag to saved file if submission is for RD data
     batch_tag='';
+    rd_run=0;
     if any(strcmpi(input_table.Properties.VariableNames,'batch'))
-        batch_tag=['_' input_table.batch];        
+        batch_tag=['_' input_table.batch];
+        rd_run=1;
     end
     
     
@@ -311,7 +316,19 @@ if ~CF_run
     elseif trace_gas==3
         trace_gas_nm = '_NO2_UV_';
     end
-    savename=[input_table.instrument trace_gas_nm 'VCD_' input_table.year batch_tag '.mat'];
-
-    save(savename,'avg_vcd','dscd_S','qdoas_filt','rcd_S','VCD_table');
+    
+    if rd_run==1 && twostep==1
+        savename='vcd_1st_run.mat';
+        vcd_1st_run=VCD_table;
+        save(savename,'vcd_1st_run');
+    else
+        savename=[input_table.instrument trace_gas_nm 'VCD_' input_table.year batch_tag '.mat'];
+        save(savename,'avg_vcd','dscd_S','qdoas_filt','rcd_S','VCD_table');
+        return
+    end
+    
+    
 end
+
+end
+    

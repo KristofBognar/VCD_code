@@ -26,14 +26,43 @@ measurement_time = dscd_S.year + dscd_S.fd/n_days;%our measurement time
 dscd_S.o3 = interp1(sonde_time, sonde_ozone, measurement_time);
 if isnan(dscd_S.o3)
     disp(['Ozone sonde data might missing for this year, please double check sonde data']);
-    prompt = 'Do you want contitue without ozonesonde data? Y/N [Y]: ';
+    prompt = 'Do you want contitue with 2-step rapid delivery calculation? Y/N [Y]: ';
     str = input(prompt,'s');
     if isempty(str)
         str = 'Y';
         %  o3_flag: this flag tells us whether the ozone values input to the
         %  calculation code are SCDs or
         %  VCDs.  1 for O3 VCD in DU and 2 for O3 SCD in molec/cm2.
-        o3_flag = 2; % if we do not have ozonesonde, or just not avalible for now, we still can run the VCD code, but LUT will use input of GBS dSCDs not ozonesonde VCDs
+% %         o3_flag = 2; % if we do not have ozonesonde, or just not avalible for now, we still can run the VCD code, but LUT will use input of GBS dSCDs not ozonesonde VCDs
+        
+        %% 2-step method (Francois)
+        % use fixed VCD for first run, then use first run VCDs for second run
+        o3_flag = 1;
+        
+        % check if first run already happened
+        if exist('../../vcd_1st_run.mat','file')
+            
+            disp(['2nd run: loaded temporary VCD file']);
+            load('../../vcd_1st_run.mat')
+            
+            vcd_1st_run.mean_vcd=vcd_1st_run.mean_vcd/2.687e16;
+            
+            vcd_1st_run.mean_vcd(isnan(vcd_1st_run.mean_vcd))=300;
+            
+            vcd_1st_run_time=vcd_1st_run.year + vcd_1st_run.fd/n_days;
+            dscd_S.o3=interp1(vcd_1st_run_time, vcd_1st_run.mean_vcd, measurement_time);
+            
+            delete('../../vcd_1st_run.mat')
+            
+        else
+            disp(['1st run: using 300 DU as AMF LUT input']);
+            
+            % use fix value of 300 DU for first run
+            dscd_S.o3=ones(size(measurement_time))*300;
+            
+        end
+        
+        
     end
     if strcmp(str,'N')
         return;
