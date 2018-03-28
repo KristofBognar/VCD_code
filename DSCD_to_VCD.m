@@ -317,7 +317,7 @@ if ~CF_run
         trace_gas_nm = '_NO2_UV_';
     end
     
-    if rd_run==1 && twostep==1
+    if rd_run==1 && twostep==1 && trace_gas==1
         savename='vcd_1st_run.mat';
         vcd_1st_run=VCD_table;
         save(savename,'vcd_1st_run');

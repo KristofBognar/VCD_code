@@ -133,8 +133,15 @@ copyfile([amf_dir 'no2_amf_output.dat'], out_file);
 % make plots and get langley dscd_vec for morning and afternoon
 close all;
 figure;
+try
+    set(0, 'CurrentFigure', 99);
+catch
+    figure(99)
+end
+
 print_setting(1,0,['temp']);
 rcd_vec = langley(day, ampm, dscd_S.fd(ind), dscd_S.sza(ind),...
     dscd_S.saa(ind), dscd_S.mol_dscd(ind), dscd_S.rms(ind), amf, sza_range, '',dscd_S.err);
 
+clf(99)
 end
