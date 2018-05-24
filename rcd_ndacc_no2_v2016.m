@@ -131,8 +131,8 @@ copyfile([amf_dir 'no2_amf_output.dat'], out_file);
 
 
 % make plots and get langley dscd_vec for morning and afternoon
-close all;
-figure;
+% close all;
+% figure;
 try
     set(0, 'CurrentFigure', 99);
 catch

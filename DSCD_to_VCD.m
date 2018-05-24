@@ -152,8 +152,13 @@ sza_range_no2 = [86,91]; % for example, SZA from 86 to 91 degree
 
 % wavelength will be used in the NDACC AMF-LUT
 lambda_ozone = 505; % the centre wavlenth used in QDOAS fitting for ozone
-lambda_no2 = 437;% for UT-GBS in Vis
+% lambda_no2 = 437;% for UT-GBS in Vis, 425-450 window
+lambda_no2 = 457;% for UT-GBS in Vis, 425-490 window
 lambda_no2_UV = 365;% for PEARL-GBS in UV
+
+if trace_gas==2
+    disp(['Wavelength for AMF LUT set to ' num2str(lambda_no2)])
+end
 
 % save output figures or not
 %save_fig = 1; % 1 = yes, 0 = no
