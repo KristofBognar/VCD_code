@@ -25,7 +25,7 @@ sonde_ozone = sonde(:,4);% the sonde ozone VCD (in DU)
 measurement_time = dscd_S.year + dscd_S.fd/n_days;%our measurement time
 dscd_S.o3 = interp1(sonde_time, sonde_ozone, measurement_time);
 if isnan(dscd_S.o3)
-    disp(['Ozone sonde data might missing for this year, please double check sonde data']);
+    disp(['Ozone sonde data missing for this year, please double check sonde file']);
     prompt = 'Do you want contitue with 2-step rapid delivery calculation? Y/N [Y]: ';
     str = input(prompt,'s');
     if isempty(str)
