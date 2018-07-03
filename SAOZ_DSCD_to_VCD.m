@@ -162,8 +162,10 @@ instr_str='saoz';
 filter_tag = '';
 
 if trace_gas == 1
-    error('Change code to use fix RCD');
-    [dscd_S, rcd_S, avg_vcd] = get_ozone_vcds_v2018(dscd_S, sonde, instr_str, sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
+
+    % get VCDs with fix RCD + dSCDs as LUT input (dscd_S and avg_vcd), 
+    % and also with daily RCD + sonde as LUT input (dscd_S2 and avg_vcd2)
+    [dscd_S, rcd_S, avg_vcd, dscd_S2, rcd_S2, avg_vcd2] = SAOZ_get_ozone_vcds(dscd_S, sonde, instr_str, sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
    
 elseif trace_gas == 2
 
@@ -229,9 +231,13 @@ if rd_run==1 && twostep==1 && trace_gas==1
     save(savename,'vcd_1st_run');
 else
     savename=[input_table.instrument trace_gas_nm 'VCD_' input_table.year batch_tag '.mat'];
-    save(savename,'avg_vcd','dscd_S','qdoas_filt','rcd_S','VCD_table',...
-                  'avg_vcd2','dscd_S2','VCD_table2');
-
+    if trace_gas==1
+        save(savename,'avg_vcd','dscd_S','qdoas_filt','rcd_S','VCD_table',...
+                      'rcd_S2','avg_vcd2','dscd_S2','VCD_table2');
+    else
+        save(savename,'avg_vcd','dscd_S','qdoas_filt','rcd_S','VCD_table',...
+                      'avg_vcd2','dscd_S2','VCD_table2');
+    end
     return
 end
     
