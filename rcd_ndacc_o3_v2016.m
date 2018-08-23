@@ -94,10 +94,11 @@ end
 if condition
     amf = ones(length(ind),1) * NaN;
     disp(['Warning: No input ozone VCDs for day ' num2str(day) ampm_str])
-    %return % if we want only retrieval days with ozonesondes, enable this "return"
-    o3_flag = 2; % if we want use ozonesonde VCD as 1st choice for LUT, but keep GBS dSCDs as 2nd choice, use this line
-    disp('Warning: Code will fall back to use GBS dSCDs as LUT inputs');
+    return % if we want only retrieval days with ozonesondes, enable this "return"
+%     o3_flag = 2; % if we want use ozonesonde VCD as 1st choice for LUT, but keep GBS dSCDs as 2nd choice, use this line
+%     disp('Warning: Code will fall back to use GBS dSCDs as LUT inputs');
 end
+
 disp(['Calculating RCD for day: ' num2str(day) ' ' ampm_str])
 
 % Make amf output file name

@@ -47,7 +47,8 @@ if (A == 1)
     %she confirmed we should use this one. Data generated for NDACC in 2017
     %start use 0.034 (before that, data, such as the ones for ACE archive was 0.02)
     
-    %Kristof: split 0.034: 0.014 goes here, 0.031 under sys (see Cristen's thesis)
+    % Kristof: split 0.034: 0.014 goes here as rand (instr error+raman scatter),
+    % 0.031 under sys (xs error) (see Cristen's thesis)
     if ~isempty(dscd_S.x)
         scd_err_rand =sqrt( (0.014).^2 + (3*dscd_S.err ./ scd).^2 + ...
                          ((dscd_S.x * 1e17)./dscd_S.mol_dscd).^2 ).*scd;

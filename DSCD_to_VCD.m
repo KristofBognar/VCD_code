@@ -239,7 +239,6 @@ if trace_gas == 1
         disp('Traditional Langley fits finished ... wait for 120 s ... ');pause(120);
         
         filter_tag = 'nocloud';
-        error('modify get_ozone_vcds_v2017.m to include new error budget')
         [dscd_S2, rcd_S2, avg_vcd2] = get_ozone_vcds_v2017(dscd_S, sonde,instr_str,sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
         [avg_vcd2,rcd_S2] = assign_refspec_time_to_avgvcd(dscd_S2,avg_vcd2,rcd_S2);% this will assgin the ref spec time and sza to rcd_S and avg_vcd
         disp('Cloud-screened Langley fits finished ... wait for 120 s ... ');pause(120);

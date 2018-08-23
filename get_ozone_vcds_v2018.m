@@ -45,12 +45,22 @@ if isnan(dscd_S.o3)
             disp(['2nd run: loaded temporary VCD file']);
             load('../../vcd_1st_run.mat')
             
+            % convert to DU
             vcd_1st_run.mean_vcd=vcd_1st_run.mean_vcd/2.687e16;
-            
             vcd_1st_run.mean_vcd(isnan(vcd_1st_run.mean_vcd))=300;
+
+            % extend using end values (first/last day dscds start/end
+            % outside the mean measurement time
+            vcd_1st_run_mean_vcd=[vcd_1st_run.mean_vcd(1);...
+                                  vcd_1st_run.mean_vcd;...
+                                  vcd_1st_run.mean_vcd(end)];
             
-            vcd_1st_run_time=vcd_1st_run.year + vcd_1st_run.fd/n_days;
-            dscd_S.o3=interp1(vcd_1st_run_time, vcd_1st_run.mean_vcd, measurement_time);
+            vcd_1st_run_time=[vcd_1st_run.year+vcd_1st_run.fd/n_days];
+            vcd_1st_run_time=[vcd_1st_run_time(1)-1;...
+                              vcd_1st_run_time;...
+                              vcd_1st_run_time(end)+1];
+            
+            dscd_S.o3=interp1(vcd_1st_run_time, vcd_1st_run_mean_vcd, measurement_time);
             
             delete('../../vcd_1st_run.mat')
             

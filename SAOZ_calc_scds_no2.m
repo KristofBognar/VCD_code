@@ -34,7 +34,6 @@ function [scd,scd_err_sys,scd_err_rand] = SAOZ_calc_scds_no2(dscd_S)
 year=dscd_S.year(1);
 L = length(dscd_S.day);
 scd = NaN * ones(L,1);
-rcd_err = 1e15 * ones(L,1);
 
 %% SAOZ RCD values for NO2
 if year==2008 || year==2009
@@ -42,6 +41,12 @@ if year==2008 || year==2009
 else
     saoz_rcd=1.1e16;
 end
+
+% use 2% as RCD error (Hendrick et al., 2011) -- RCD error not calculated
+% by SAOZ team
+% % rcd_err = 1e15 * ones(L,1);
+rcd_err = (saoz_rcd/50) * ones(L,1);
+
 
 %% calculate SCD
 scd=dscd_S.mol_dscd + saoz_rcd;

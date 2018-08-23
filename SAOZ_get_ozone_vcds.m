@@ -28,8 +28,23 @@ dscd_S.o3 = interp1(sonde_time, sonde_ozone, measurement_time);
 fixRCD_tag='_fixRCD';
 dailyRCD_tag='_dailyRCD';
 
-% fix RCD using dSCDs as LUT input
+% fix RCD using SCDs as LUT input (NOT dSCDs!!)
+% SAOZ RCD values for O3
+year=dscd_S.year(1);
+if any(year==[2005:2007])
+    saoz_rcd=4e19;
+elseif any(year==[2008:2010])
+    saoz_rcd=5e19;
+elseif year==2011
+    saoz_rcd=1.6e19;
+elseif any(year==[2012:2017])
+    saoz_rcd=4.4e19;
+end
+% temporarily replace dSCDs with SCDs and calculate AMFs
+dscd_S.mol_dscd=dscd_S.mol_dscd+saoz_rcd;
 [dscd_S,rcd_S]= get_all_rcds_v2016(dscd_S, 0, sza_range, 0, 2, [tag '_L2'],lambda,code_path, fixRCD_tag);% Xiaoyi: change o3 for LUT input(2 for SCDs, 1 for VCDs)
+dscd_S.mol_dscd=dscd_S.mol_dscd-saoz_rcd; % get original dSCDs back
+
 % Copy of GBS method with SAOZ data
 [dscd_S2,rcd_S2]= get_all_rcds_v2016(dscd_S, 0, sza_range, 0, 1, [tag '_L2'],lambda,code_path, dailyRCD_tag);
 

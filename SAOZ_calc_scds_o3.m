@@ -40,15 +40,17 @@ elseif any(year==[2012:2017])
     saoz_rcd=4.4e19;
 end
 
-% use 10% as RCD error until values are provided by SAOZ team
-rcd_err = (saoz_rcd/10) * ones(L,1);
+% use 2% as RCD error (Hendrick et al., 2011) -- RCD error not calculated
+% by SAOZ team
+rcd_err = (saoz_rcd/50) * ones(L,1);
 
+%% calculate SCD
 scd = dscd_S.mol_dscd + saoz_rcd;
 
-
-%% calculate SCD random error (instr effects, DSCD errors, X.xs)
+%% calculate SCD random error (instr effects, DSCD errors)
 scd_err_rand =sqrt( (0.014).^2 + (3*dscd_S.err ./ scd).^2).*scd;
 
 %% calculate SCD systematic error (c-s errors and RCD error)
 scd_err_sys=sqrt( (0.031*scd).^2 + rcd_err.^2 );
+
 end
