@@ -1,0 +1,20 @@
+%%%%% Fill the following lines with settings to be used in VCD package
+input_table.instrument = 'UT-GBS';
+input_table.year = '2018';
+input_table.tg = 1; %1: ozone, 2: no2, 3: no2 UV
+input_table.filter = 'good';
+input_table.batch='1';
+
+% change name according to instrument and trace gas!!
+input_table.data_input = ['/home/kristof/work/GBS/QDOAS_results/NDACC_RD_tables/' input_table.instrument '_' input_table.year '_' input_table.batch '.mat'];
+
+if input_table.tg==1, tg_str='o3'; end
+if input_table.tg==2, tg_str='no2'; end
+if input_table.tg==3, tg_str='no2uv'; end
+
+input_table.plot_path = ['/home/kristof/work/GBS/VCD_results/NDACC_RD/' input_table.instrument '_RD/' tg_str '_' input_table.year '_' input_table.batch '/'];
+
+
+input_table.save_fig = 1;
+input_table.data_sonde = '/home/kristof/work/ozonesonde/Eureka/sonde_for_VCD_empty.mat';
+input_table.VCD_code_path = '/home/kristof/work/matlab_code/VCD_code_on_github/';

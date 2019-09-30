@@ -40,13 +40,15 @@ elseif year==2011
 elseif any(year==[2012:2017])
     saoz_rcd=4.4e19;
 end
-% temporarily replace dSCDs with SCDs and calculate AMFs
-dscd_S.mol_dscd=dscd_S.mol_dscd+saoz_rcd;
-[dscd_S,rcd_S]= get_all_rcds_v2016(dscd_S, 0, sza_range, 0, 2, [tag '_L2'],lambda,code_path, fixRCD_tag);% Xiaoyi: change o3 for LUT input(2 for SCDs, 1 for VCDs)
-dscd_S.mol_dscd=dscd_S.mol_dscd-saoz_rcd; % get original dSCDs back
+% calculate scd for AMF LUT input (2 for SCDs, 1 for VCDs)
+dscd_S.scd_for_lut=dscd_S.mol_dscd+saoz_rcd;
+% [dscd_S,rcd_S]= get_all_rcds_v2016(dscd_S, 0, sza_range, 0, 2, [tag '_L2'],lambda,code_path, fixRCD_tag);
+% [dscd_S,rcd_S]= get_all_rcds_v2016(dscd_S, 0, sza_range, 0, 1, [tag '_L2'],lambda,code_path, fixRCD_tag);
 
 % Copy of GBS method with SAOZ data
-[dscd_S2,rcd_S2]= get_all_rcds_v2016(dscd_S, 0, sza_range, 0, 1, [tag '_L2'],lambda,code_path, dailyRCD_tag);
+% [dscd_S2,rcd_S2]= get_all_rcds_v2016(dscd_S, 0, sza_range, 0, 1, [tag '_L2'],lambda,code_path, dailyRCD_tag);
+dscd_S2=dscd_S;
+rcd_S2=rcd_S;
 
 %Average RCDs and create SCDs
 min_sza_range_in_langley = 2;% this is min SZA range for langley plot

@@ -88,7 +88,8 @@ end
 if o3_flag==1
     condition=isnan(sum(dscd_S.o3(ind)));
 elseif o3_flag==2
-    condition=isnan(sum(dscd_S.mol_dscd(ind)));
+%     condition=isnan(sum(dscd_S.mol_dscd(ind)));
+    condition=isnan(sum(dscd_S.scd_for_lut(ind)));
 end
     
 if condition
@@ -112,9 +113,11 @@ fid = fopen([amf_dir 'sza_file_amf.dat'], 'w');
 % Cristen: use total columns from sonde data as input
 if o3_flag==1
     fprintf(fid, '%2.2f\t%2.2f\n', [dscd_S.sza(ind) dscd_S.o3(ind)]');
-% Xiaoyi: use dSCDs as input 
+% Xiaoyi: use dSCDs as input
+% Kristof: should be SCD, only use for SAOZ
 elseif o3_flag==2, 
-    fprintf(fid, '%2.2f\t%2.2f\n', [dscd_S.sza(ind) dscd_S.mol_dscd(ind)]'); 
+%     fprintf(fid, '%2.2f\t%2.2f\n', [dscd_S.sza(ind) dscd_S.mol_dscd(ind)]'); 
+    fprintf(fid, '%2.2f\t%2.2f\n', [dscd_S.sza(ind) dscd_S.scd_for_lut(ind)]'); 
 end
 
 fclose(fid);

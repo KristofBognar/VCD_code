@@ -15,6 +15,7 @@ function [dscd_S, rcd_S, avg_vcd, dscd_S2, avg_vcd2] = SAOZ_get_no2_vcds(dscd_S,
 % separately, according to Hendrick et al., 2011 table (keep AMF error at
 % 0.05, from Cristen's thesis)
 
+
 if nargin == 3
      sza_range = [86,91];
      save_fig = 0;

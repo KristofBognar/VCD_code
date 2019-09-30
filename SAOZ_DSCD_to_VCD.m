@@ -70,6 +70,8 @@ if nargin==0
     load(input_table.data_sonde);
     save_fig=input_table.save_fig;
     
+    fix_sza=input_table.fix_sza;
+    
     % check if input file is a .mat file (table)
     if isempty(strfind(QDOAS_data_file,'.mat'))
         error('QDOAS data must be in matlab table format');
@@ -120,8 +122,7 @@ sza_range_no2 = [86,91]; % for example, SZA from 86 to 91 degree
 
 % wavelength will be used in the NDACC AMF-LUT
 lambda_ozone = 505; % the centre wavlenth used in QDOAS fitting for ozone
-% lambda_no2 = 437;% for UT-GBS in Vis, 425-450 window
-lambda_no2 = 457;% for UT-GBS in Vis, 425-490 window
+lambda_no2 = 470;% for SAOZ in Vis, 410-530 nm window (NOT standard NDACC range)
 
 if trace_gas==2
     disp(['Wavelength for AMF LUT set to ' num2str(lambda_no2)])
@@ -150,7 +151,7 @@ load(QDOAS_data_file);
 QDOAS_data=dscd(dscd.year==year,:);
 
 % trace gas is selected in read_QDOAS_v2017 when reading from table input
-[dscd_S, qdoas_filt, qdoas_raw, col] = SAOZ_read_QDOAS(QDOAS_data,trace_gas);
+[dscd_S, qdoas_filt, qdoas_raw, col] = SAOZ_read_QDOAS(QDOAS_data,trace_gas,fix_sza);
     
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -163,7 +164,7 @@ filter_tag = '';
 
 if trace_gas == 1
 
-    % get VCDs with fix RCD + dSCDs as LUT input (dscd_S and avg_vcd), 
+    % get VCDs with fix RCD + SCDs as LUT input (dscd_S and avg_vcd), 
     % and also with daily RCD + sonde as LUT input (dscd_S2 and avg_vcd2)
     [dscd_S, rcd_S, avg_vcd, dscd_S2, rcd_S2, avg_vcd2] = SAOZ_get_ozone_vcds(dscd_S, sonde, instr_str, sza_range_ozone,lambda_ozone, save_fig,working_dir,code_path,filter_tag);
    

@@ -1,4 +1,4 @@
-function [dscd_S, qdoas_filt, qdoas_raw, col] = SAOZ_read_QDOAS(data,trace_gas)
+function [dscd_S, qdoas_filt, qdoas_raw, col] = SAOZ_read_QDOAS(data,trace_gas,fix_sza)
 % [dscd_S, qdoas_filt, qdoas_raw] = read_QDOAS(file_nm, col, filt,2)
 % version = 1 for DOAS data
 % version = 2 for MAX-DOAS data, this function will be used as subfunction
@@ -114,8 +114,13 @@ function [dscd_S, qdoas_filt, qdoas_raw, col] = SAOZ_read_QDOAS(data,trace_gas)
     end
 
     % filter by SZA only (max SZA is 92)
-    qdoas_filt=qdoas_raw(qdoas_raw(:,col.sza)<92,:);
-    
+    if fix_sza
+        qdoas_filt=qdoas_raw(qdoas_raw(:,col.sza)<91 & qdoas_raw(:,col.sza)>86,:);
+        disp('Using fixed 86-91 SZA range')
+    else
+        qdoas_filt=qdoas_raw(qdoas_raw(:,col.sza)<92,:);
+        disp('Using highest available 5 deg SZA range; max SZA=92')
+    end
     
     % Make figures showing the results of the filtering
     figure
