@@ -123,6 +123,7 @@ cd(cur_dir);
 %fid=fopen(out_file,'w');
 %fclose(fid);
 
+if ~exist('AMF/','dir'), mkdir('AMF/'), end
 copyfile([amf_dir 'no2_amf_output.dat'], out_file);
 %rename(f,'out_file.dat',out_file);
 

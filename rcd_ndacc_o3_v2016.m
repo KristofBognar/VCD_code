@@ -177,6 +177,7 @@ catch
 end
 % copy output to desired file-name.  Read output sza, o3, and AMF
 cd(cur_dir);
+if ~exist('AMF/','dir'), mkdir('AMF/'), end
 %copyfile([amf_dir 'o3_amf_output.dat'], output_file_nm);
 copyfile([amf_dir 'o3_amf_output.dat'], output_file_nm);
 
