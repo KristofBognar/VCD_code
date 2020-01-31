@@ -3,7 +3,7 @@ function input_table = read_input_file_VCD()
 input_table = table;
 
 cd ..
-cd('CF_package_local');
+cd('CF_VCD_local');
 
 if ~exist('VCD_input_file.txt', 'file')
     error('Input file not found')

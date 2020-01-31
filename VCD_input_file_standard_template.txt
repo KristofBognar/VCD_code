@@ -1,0 +1,37 @@
+%%%% Fill the following lines with settings to be used in VCD package
+%%%%
+%%%% Use this input file for yearly reprocessing
+%%%%
+%%%% File must be located in a directory named CF_VCD_local, in the same directory where the VCD code folder is
+%%%%
+%%%% This file is run by matlab line-by-line
+%%%%
+
+input_table.instrument = 'UT-GBS'; % UT-GBS or PEARL-GBS
+input_table.year = '2016'; % year to process
+input_table.tg = 1; % 1: ozone, 2: no2, 3: no2 UV
+input_table.filter = 'good'; % RMS filter, stick to 'good'
+
+%%%% Set data and output folders: instrument and tracegas names are set automatically
+
+% most of this is left over from GBS reprocessing (Bognar et al., 2019), and is ignored
+if strcmp(input_table.instrument, 'UT-GBS'), qdoas_str='_merged'; end
+if strcmp(input_table.instrument, 'PEARL-GBS'), qdoas_str=''; end
+if str2double(input_table.year)>=2017, qdoas_str=''; end
+if input_table.tg==3, qdoas_str='_UV'; end
+
+% need to set the path to where QDOAS data is saved
+input_table.data_input = ['/home/kristof/work/GBS/QDOAS_results/yearly_tables/' input_table.instrument '_' input_table.year qdoas_str '.mat'];
+
+if input_table.tg==1, tg_str='o3'; end
+if input_table.tg==2, tg_str='no2'; end
+if input_table.tg==3, tg_str='no2uv'; end
+
+% set the part to where VCD results and plots should be saved
+input_table.plot_path = ['/home/kristof/work/GBS/VCD_results/' input_table.instrument '_reanalysis/' tg_str '_' input_table.year '/'];
+% input_table.plot_path = ['/home/kristof/work/GBS/VCD_results/' input_table.instrument '_reanalysis/' tg_str '_' input_table.year '_scd_to_amflut/'];
+
+% misc settings, set to local paths
+input_table.save_fig = 1;
+input_table.data_sonde = '/home/kristof/work/ozonesonde/Eureka/sonde_for_VCD.mat';
+input_table.VCD_code_path = '/home/kristof/work/matlab_code/VCD_code_on_github/';
