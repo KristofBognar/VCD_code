@@ -158,7 +158,7 @@ if ispc
     elseif O3_AMF_version == 2
         executable = [amf_dir 'o3_amf_interpolation_v2_0_dos.exe'];
     end
-elseif isunix
+elseif isunix || ismac
     if O3_AMF_version == 1
         executable = ['wine ' amf_dir 'o3_amf_interpolation_dos.exe'];
     elseif O3_AMF_version == 2
@@ -169,7 +169,7 @@ end
 try
     [status, result] = dos(executable, '-echo');
 catch
-    if isunix
+    if isunix || ismac
         error('Please install Wine or another windows emulator');
     elseif ispc
         error('Could not run LUT executable')

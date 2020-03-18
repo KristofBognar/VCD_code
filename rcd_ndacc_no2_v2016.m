@@ -108,7 +108,7 @@ if ispc
     elseif NO2_AMF_version == 2
         executable = [amf_dir 'no2_amf_interpolation_v1_0.exe'];
     end
-elseif isunix
+elseif isunix || ismac
     if NO2_AMF_version == 1
         executable = ['wine ' amf_dir 'no2_amf_interpolation_dos.exe'];% for the old version of AMF LUT
     elseif NO2_AMF_version == 2
@@ -116,7 +116,15 @@ elseif isunix
     end
 end
     
-[status, result] = dos(executable, '-echo');
+try
+    [status, result] = dos(executable, '-echo');
+catch
+    if isunix || ismac
+        error('Please install Wine or another windows emulator');
+    elseif ispc
+        error('Could not run LUT executable')
+    end
+end
 
 % copy output to desired file-name.  Read output sza, o3, and AMF
 cd(cur_dir);
