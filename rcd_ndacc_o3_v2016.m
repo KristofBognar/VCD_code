@@ -112,12 +112,16 @@ fid = fopen([amf_dir 'sza_file_amf.dat'], 'w');
 
 % Cristen: use total columns from sonde data as input
 if o3_flag==1
-    fprintf(fid, '%2.2f\t%2.2f\n', [dscd_S.sza(ind) dscd_S.o3(ind)]');
+    if O3_AMF_version == 1
+        fprintf(fid, '%2.2f\t%2.2f\n', [dscd_S.sza(ind) dscd_S.o3(ind)]');
+    elseif O3_AMF_version == 2
+        fprintf(fid, '%3d\t%2.2f\t%2.2f\n', [ones(size(dscd_S.o3(ind)))*day dscd_S.sza(ind) dscd_S.o3(ind)]');
+    end
 % Xiaoyi: use dSCDs as input
 % Kristof: should be SCD, only use for SAOZ
-elseif o3_flag==2, 
+elseif o3_flag==2,
 %     fprintf(fid, '%2.2f\t%2.2f\n', [dscd_S.sza(ind) dscd_S.mol_dscd(ind)]'); 
-    fprintf(fid, '%2.2f\t%2.2f\n', [dscd_S.sza(ind) dscd_S.scd_for_lut(ind)]'); 
+        fprintf(fid, '%2.2f\t%2.2f\n', [dscd_S.sza(ind) dscd_S.scd_for_lut(ind)]'); 
 end
 
 fclose(fid);
@@ -125,27 +129,52 @@ fclose(fid);
 % now print up to input o3 file
 fid = fopen([amf_dir 'input_file_o3_amf.dat'], 'w');
 
-fprintf(fid, '%s\n', '*Input file for O3 AMF interpolation program');
-fprintf(fid, '%s\n', '*');
-fprintf(fid, '%s\n', '*Wavelength (440-580 nm) ?');
-fprintf(fid, '%s\n', num2str(lambda));
-fprintf(fid, '%s\n', '*Day number (1-365 or 366 for leap year) ?');
-fprintf(fid, '%d\n', day);
-fprintf(fid, '%s\n', '*Latitude (-90 (SH) to +90 (NH)) ?');
-fprintf(fid, '%s\n', '80.05');
-fprintf(fid, '%s\n', '*Longitude (-180 (- for W) to +180 (+ for E)) ?');
-fprintf(fid, '%s\n', '-86.42');
-fprintf(fid, '%s\n', '*Ground albedo flag: 1 for Koelemeijer dscd_vecbase and 2 for albedo value defined by the user');
-fprintf(fid, '%s\n', '1');
-fprintf(fid, '%s\n', '*Ground albedo value (if albedo flag = 1, put -99)');
-fprintf(fid, '%s\n', '-99');
-fprintf(fid, '%s\n', '*Altitude of the station (between 0 and 4 km)');
-fprintf(fid, '%s\n', '0.6 ');
-fprintf(fid, '%s\n', '*Name of the file with SZA values for interpolation (less than 30 characters) ?');
-fprintf(fid, '%s\n', 'sza_file_amf.dat');
-fprintf(fid, '%s\n', '*O3 column interpolation: 1 for O3 VCD in DU and 2 for O3 SCD in molec/cm2');
-fprintf(fid, '%d\n', o3_flag);
-fclose(fid);
+% added elseif statement Apr 27, 2020.
+if O3_AMF_version == 1
+    fprintf(fid, '%s\n', '*Input file for O3 AMF interpolation program');
+    fprintf(fid, '%s\n', '*');
+    fprintf(fid, '%s\n', '*Wavelength (440-580 nm) ?');
+    fprintf(fid, '%s\n', num2str(lambda));
+    fprintf(fid, '%s\n', '*Day number (1-365 or 366 for leap year) ?');
+    fprintf(fid, '%d\n', day);
+    fprintf(fid, '%s\n', '*Latitude (-90 (SH) to +90 (NH)) ?');
+    fprintf(fid, '%s\n', '80.05');
+    fprintf(fid, '%s\n', '*Longitude (-180 (- for W) to +180 (+ for E)) ?');
+    fprintf(fid, '%s\n', '-86.42');
+    fprintf(fid, '%s\n', '*Ground albedo flag: 1 for Koelemeijer dscd_vecbase and 2 for albedo value defined by the user');
+    fprintf(fid, '%s\n', '1');
+    fprintf(fid, '%s\n', '*Ground albedo value (if albedo flag = 1, put -99)');
+    fprintf(fid, '%s\n', '-99');
+    fprintf(fid, '%s\n', '*Altitude of the station (between 0 and 4 km)');
+    fprintf(fid, '%s\n', '0.6 ');
+    fprintf(fid, '%s\n', '*Name of the file with SZA values for interpolation (less than 30 characters) ?');
+    fprintf(fid, '%s\n', 'sza_file_amf.dat');
+    fprintf(fid, '%s\n', '*O3 column interpolation: 1 for O3 VCD in DU and 2 for O3 SCD in molec/cm2');
+    fprintf(fid, '%d\n', o3_flag);
+    fclose(fid);
+elseif O3_AMF_version == 2
+    fprintf(fid, '%s\n', '*Input file for O3 AMF interpolation program');
+    fprintf(fid, '%s\n', '*');
+    fprintf(fid, '%s\n', '*Wavelength (440-580 nm) ?');
+    fprintf(fid, '%s\n', num2str(lambda));
+    fprintf(fid, '%s\n', '*Latitude (-90 (SH) to +90 (NH)) ?');
+    fprintf(fid, '%s\n', '80.05');
+    fprintf(fid, '%s\n', '*Longitude (-180 (- for W) to +180 (+ for E)) ?');
+    fprintf(fid, '%s\n', '-86.42');
+    fprintf(fid, '%s\n', '*Ground albedo flag: 1 for Koelemeijer dscd_vecbase and 2 for albedo value defined by the user');
+    fprintf(fid, '%s\n', '1');
+    fprintf(fid, '%s\n', '*Ground albedo value (if albedo flag = 1, put -99)');
+    fprintf(fid, '%s\n', '-99');
+    fprintf(fid, '%s\n', '*Altitude of the station (between 0 and 4 km)');
+    fprintf(fid, '%s\n', '0.6 ');
+    fprintf(fid, '%s\n', '*Name of the file with SZA values for interpolation (less than 30 characters) ?');
+    fprintf(fid, '%s\n', 'sza_file_amf.dat');
+    fprintf(fid, '%s\n', '*O3 column interpolation: 1 for O3 VCD in DU and 2 for O3 SCD in molec/cm2');
+    fprintf(fid, '%d\n', o3_flag);
+    fprintf(fid, '%s\n', '*Interpolation results appearing on the screen: 1 -> yes, 0 -> no');
+    fprintf(fid, '%s\n', '0');
+    fclose(fid);
+end
 
 % change to amf directory to excecute interpolation scheme
 cur_dir = pwd;
@@ -158,7 +187,13 @@ if ispc
     elseif O3_AMF_version == 2
         executable = [amf_dir 'o3_amf_interpolation_v2_0_dos.exe'];
     end
-elseif isunix || ismac
+elseif ismac
+    if O3_AMF_version == 1
+        executable = [amf_dir 'o3_amf_interpolation.out'];
+    elseif O3_AMF_version == 2
+        executable = [amf_dir 'o3_amf_interpolation_v2_0.out'];
+    end
+elseif isunix
     if O3_AMF_version == 1
         executable = ['wine ' amf_dir 'o3_amf_interpolation_dos.exe'];
     elseif O3_AMF_version == 2
