@@ -49,6 +49,13 @@ function [rcd_vec, amf] = ...
 %             13 :rcd_err : rcd 1-sigma error in y-int
 %             14 : number of points included in langley plot
 %       amf : AMF corresponding with each index
+%
+%%%%
+% Apr. 2020, Kristof Bognar, Ramina Alwarda: Code was set up to use v1 lut
+% even for v2
+%   LUTs are the same for v1 and v2, but input format changed
+%   Xiaoyi must have copied v1 exe to v2 folder to keep the format
+%   Changes: redo file formats to actually use v2 ececutables
 
 % put LUT folder pareller to VCD code folder!
 if ispc
@@ -112,10 +119,10 @@ fid = fopen([amf_dir 'sza_file_amf.dat'], 'w');
 
 % Cristen: use total columns from sonde data as input
 if o3_flag==1
-    if O3_AMF_version == 1
+    if O3_AMF_version == 1 % sza and o3 a priori needed, day specified in control file
         fprintf(fid, '%2.2f\t%2.2f\n', [dscd_S.sza(ind) dscd_S.o3(ind)]');
-    elseif O3_AMF_version == 2
-        fprintf(fid, '%3d\t%2.2f\t%2.2f\n', [ones(size(dscd_S.o3(ind)))*day dscd_S.sza(ind) dscd_S.o3(ind)]');
+    elseif O3_AMF_version == 2 % day, sza and o3 a priori included here
+        fprintf(fid, '%3d %2.2f %2.2f\n', [ones(size(dscd_S.o3(ind)))*day dscd_S.sza(ind) dscd_S.o3(ind)]');
     end
 % Xiaoyi: use dSCDs as input
 % Kristof: should be SCD, only use for SAOZ
@@ -130,6 +137,7 @@ fclose(fid);
 fid = fopen([amf_dir 'input_file_o3_amf.dat'], 'w');
 
 % added elseif statement Apr 27, 2020.
+% control file formats differ between v1 and v2
 if O3_AMF_version == 1
     fprintf(fid, '%s\n', '*Input file for O3 AMF interpolation program');
     fprintf(fid, '%s\n', '*');
@@ -205,7 +213,7 @@ try
     [status, result] = dos(executable, '-echo');
 catch
     if isunix || ismac
-        error('Please install Wine or another windows emulator');
+        error('Please install windows emulator or compile from source');
     elseif ispc
         error('Could not run LUT executable')
     end
@@ -213,11 +221,13 @@ end
 % copy output to desired file-name.  Read output sza, o3, and AMF
 cd(cur_dir);
 if ~exist('AMF/','dir'), mkdir('AMF/'), end
-%copyfile([amf_dir 'o3_amf_output.dat'], output_file_nm);
 copyfile([amf_dir 'o3_amf_output.dat'], output_file_nm);
 
-%[tmp1_sza, tmp2_o3, amf] = textread(output_file_nm, '%f%f%f', 'headerlines',8);
-[~, ~, amf] = textread(output_file_nm, '%f%f%f', 'headerlines',8);
+if O3_AMF_version == 1 % output has sza, o3 VCD and AMF
+    [~, ~, amf] = textread(output_file_nm, '%f%f%f', 'headerlines',8);
+elseif O3_AMF_version == 2 % output has day, sza, o3 VCD and AMF
+    [~, ~, ~, amf] = textread(output_file_nm, '%f%f%f%f', 'headerlines',6);
+end
 
 % make plots and get langley dscd_vec for morning and afternoon
 % close all;
