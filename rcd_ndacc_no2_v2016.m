@@ -108,7 +108,13 @@ if ispc
     elseif NO2_AMF_version == 2
         executable = [amf_dir 'no2_amf_interpolation_v1_0.exe'];
     end
-elseif isunix || ismac
+elseif ismac
+    if NO2_AMF_version == 1
+        error('Version 1 unavailable')% for the old version of AMF LUT
+    elseif NO2_AMF_version == 2
+        executable = [amf_dir 'no2_amf_interpolation.out'];
+    end
+elseif isunix
     if NO2_AMF_version == 1
         executable = ['wine ' amf_dir 'no2_amf_interpolation_dos.exe'];% for the old version of AMF LUT
     elseif NO2_AMF_version == 2
